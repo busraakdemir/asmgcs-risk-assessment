@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A-SMGCS FHA — Risk Analiz Sistemi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e14;
+  --surface: #111720;
+  --surface2: #171f2b;
+  --border: #1e2d3d;
+  --border2: #2a3f52;
+  --text: #cdd6e0;
+  --text2: #7a92a8;
+  --text3: #3d5166;
+  --accent: #3b82f6;
+  --accent2: #1d4ed8;
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --purple: #a78bfa;
+  --teal: #2dd4bf;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── Topbar ── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,14,20,0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 52px;
+}
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
+.brand-name { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--text); letter-spacing: .5px; }
+.brand-sub { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.status-pill {
+  font-family: var(--mono); font-size: 11px;
+  padding: 3px 10px; border-radius: 20px;
+  border: 1px solid; display: flex; align-items: center; gap: 5px;
+}
+.status-pill.saved { border-color: #166534; background: #052e16; color: var(--green); }
+.status-pill.dirty { border-color: #92400e; background: #1c0a00; color: var(--amber); }
+.status-dot { width: 5px; height: 5px; border-radius: 50%; }
+.saved .status-dot { background: var(--green); }
+.dirty .status-dot { background: var(--amber); }
+.btn-ghost {
+  font-family: var(--mono); font-size: 11px;
+  padding: 4px 12px; border-radius: 4px;
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--text2); cursor: pointer; transition: all .15s;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-ghost.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 52px); }
+
+/* ── Sidebar ── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; flex-direction: column;
+  height: calc(100vh - 52px);
+  position: sticky; top: 52px;
+  overflow-y: auto;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); }
+.sidebar-section { padding: 16px 12px 8px; }
+.sidebar-label {
+  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text3); padding: 0 8px; margin-bottom: 6px;
+}
+.func-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: 6px;
+  cursor: pointer; transition: background .1s;
+  border: 1px solid transparent;
+}
+.func-item:hover { background: var(--surface2); }
+.func-item.active { background: rgba(59,130,246,.08); border-color: rgba(59,130,246,.2); }
+.fid { font-family: var(--mono); font-size: 10px; color: var(--accent); width: 28px; flex-shrink: 0; }
+.fname { font-size: 11px; color: var(--text2); flex: 1; line-height: 1.3; }
+.func-item.active .fname { color: var(--text); }
+.fdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.fdot.empty { background: var(--border2); }
+.fdot.partial { background: var(--amber); }
+.fdot.full { background: var(--green); }
+
+.sidebar-divider { height: 1px; background: var(--border); margin: 8px 12px; }
+
+.storage-block { padding: 12px 14px; }
+.storage-title { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+.storage-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+.storage-key { font-size: 11px; color: var(--text2); }
+.storage-val { font-family: var(--mono); font-size: 11px; color: var(--text); }
+.storage-note { font-size: 10px; color: var(--text3); line-height: 1.5; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
+.btn-export {
+  width: 100%; margin-top: 10px;
+  font-family: var(--mono); font-size: 11px;
+  padding: 6px; border-radius: 4px;
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--text2); cursor: pointer; transition: all .15s;
+}
+.btn-export:hover { border-color: var(--teal); color: var(--teal); }
+
+/* ── Main ── */
+.main { padding: 24px; overflow-x: hidden; }
+.nav-tabs {
+  display: flex; gap: 2px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--border); padding-bottom: 0;
+}
+.ntab {
+  font-family: var(--mono); font-size: 12px;
+  padding: 8px 16px; background: transparent;
+  border: none; color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all .15s;
+  margin-bottom: -1px;
+}
+.ntab:hover { color: var(--text2); }
+.ntab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Entry panel ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 16px;
+  overflow: hidden;
+}
+.panel-hdr {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-title { font-family: var(--mono); font-size: 12px; color: var(--text); font-weight: 500; }
+.panel-sub { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.panel-body { padding: 16px; }
+
+.expert-bar { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.etab {
+  font-family: var(--mono); font-size: 11px;
+  padding: 5px 14px; border-radius: 4px;
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--text3); cursor: pointer; position: relative; transition: all .15s;
+}
+.etab:hover { color: var(--text2); border-color: var(--border); }
+.etab.active { border-color: var(--accent); color: var(--accent); background: rgba(59,130,246,.06); }
+.etab.has-data::after {
+  content: ''; position: absolute; top: 3px; right: 3px;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--green);
+}
+
+.dim-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.dim-block { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.dim-hdr { padding: 8px 12px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .5px; }
+.dim-sev .dim-hdr { background: rgba(239,68,68,.08); border-bottom: 1px solid rgba(239,68,68,.2); color: #fca5a5; }
+.dim-prob .dim-hdr { background: rgba(167,139,250,.08); border-bottom: 1px solid rgba(167,139,250,.2); color: #c4b5fd; }
+.dim-det .dim-hdr { background: rgba(45,212,191,.08); border-bottom: 1px solid rgba(45,212,191,.2); color: #99f6e4; }
+
+.perspective { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.perspective:last-child { border-bottom: none; }
+.persp-lbl {
+  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px;
+  display: flex; align-items: center; gap: 5px;
+}
+.persp-opt .persp-lbl { color: #60a5fa; }
+.persp-pess .persp-lbl { color: #f87171; }
+.pdot-opt { width: 5px; height: 5px; border-radius: 50%; background: #60a5fa; }
+.pdot-pess { width: 5px; height: 5px; border-radius: 50%; background: #f87171; }
+
+.field { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
+.field:last-child { margin-bottom: 0; }
+.field label { font-size: 9px; color: var(--text3); font-family: var(--mono); letter-spacing: .5px; }
+.field select {
+  font-size: 11px; padding: 5px 7px;
+  border-radius: 4px; border: 1px solid var(--border2);
+  background: var(--bg); color: var(--text);
+  width: 100%; font-family: var(--sans); transition: border-color .15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%233d5166'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  padding-right: 22px;
+}
+.field select:focus { outline: none; border-color: var(--accent); }
+.field select.invalid { border-color: var(--red) !important; background-color: rgba(239,68,68,.05); }
+
+.form-actions { display: flex; gap: 8px; margin-top: 16px; align-items: center; }
+.btn-save {
+  font-family: var(--mono); font-size: 12px;
+  padding: 8px 20px; border-radius: 4px;
+  border: 1px solid var(--accent); background: rgba(59,130,246,.1);
+  color: var(--accent); cursor: pointer; transition: all .15s;
+}
+.btn-save:hover { background: rgba(59,130,246,.2); }
+.btn-del {
+  font-family: var(--mono); font-size: 11px;
+  padding: 7px 14px; border-radius: 4px;
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--text3); cursor: pointer; transition: all .15s;
+}
+.btn-del:hover { border-color: var(--red); color: var(--red); }
+
+.toast {
+  font-family: var(--mono); font-size: 11px;
+  padding: 4px 10px; border-radius: 4px; display: none;
+}
+.toast.show { display: inline-block; animation: fadein .2s; }
+@keyframes fadein { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.toast.ok { background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3); color: var(--green); }
+.toast.err { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3); color: var(--red); }
+.toast.inf { background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.3); color: var(--accent); }
+
+.empty-state {
+  text-align: center; padding: 3rem; color: var(--text3);
+  font-family: var(--mono); font-size: 12px;
+}
+
+/* ── Results ── */
+.result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 10px; }
+.rcard {
+  padding: 14px; border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  cursor: default; transition: border-color .15s;
+}
+.rcard:hover { border-color: var(--border2); }
+.rcard-id { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-bottom: 4px; }
+.rcard-score { font-family: var(--mono); font-size: 26px; font-weight: 500; margin: 4px 0; }
+.rcard-pill { font-family: var(--mono); font-size: 9px; font-weight: 500; padding: 2px 8px; border-radius: 20px; display: inline-block; }
+.rcard-meta { font-size: 10px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
+.rcard.neg { border-left: 3px solid var(--green); }
+.rcard.neg .rcard-score { color: var(--green); }
+.rcard.neg .rcard-pill { background: rgba(34,197,94,.1); color: var(--green); }
+.rcard.low { border-left: 3px solid #86efac; }
+.rcard.low .rcard-score { color: #86efac; }
+.rcard.low .rcard-pill { background: rgba(134,239,172,.1); color: #86efac; }
+.rcard.mod { border-left: 3px solid var(--amber); }
+.rcard.mod .rcard-score { color: var(--amber); }
+.rcard.mod .rcard-pill { background: rgba(245,158,11,.1); color: var(--amber); }
+.rcard.high { border-left: 3px solid #fb923c; }
+.rcard.high .rcard-score { color: #fb923c; }
+.rcard.high .rcard-pill { background: rgba(251,146,60,.1); color: #fb923c; }
+.rcard.crit { border-left: 3px solid var(--red); }
+.rcard.crit .rcard-score { color: var(--red); }
+.rcard.crit .rcard-pill { background: rgba(239,68,68,.1); color: var(--red); }
+
+/* ── Steps ── */
+.step-list { display: flex; flex-direction: column; gap: 6px; }
+.step-row {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.step-icon {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  flex-shrink: 0;
+}
+.step-content { flex: 1; }
+.step-content h4 { font-family: var(--mono); font-size: 11px; color: var(--text); margin-bottom: 3px; }
+.step-content p { font-family: var(--mono); font-size: 10px; color: var(--text3); line-height: 1.5; }
+.step-val { font-family: var(--mono); font-size: 13px; font-weight: 500; text-align: right; white-space: nowrap; }
+.pbar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.pbar-fill { height: 100%; border-radius: 2px; transition: width .5s ease; }
+
+/* ── Pipeline badge row ── */
+.pipeline-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.pip-badge {
+  font-family: var(--mono); font-size: 10px;
+  padding: 3px 10px; border-radius: 3px; border: 1px solid;
+}
+.pip-arrow { color: var(--text3); font-size: 11px; }
+.pb1 { border-color: rgba(59,130,246,.4); background: rgba(59,130,246,.06); color: #93c5fd; }
+.pb2 { border-color: rgba(167,139,250,.4); background: rgba(167,139,250,.06); color: #c4b5fd; }
+.pb3 { border-color: rgba(45,212,191,.4); background: rgba(45,212,191,.06); color: #99f6e4; }
+.pb4 { border-color: rgba(245,158,11,.4); background: rgba(245,158,11,.06); color: #fcd34d; }
+.pb5 { border-color: rgba(34,197,94,.4); background: rgba(34,197,94,.06); color: #86efac; }
+
+/* ── Table ── */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; padding: 8px 12px; font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); font-weight: 500; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 11px; }
+tr:last-child td { border: none; }
+tr:hover td { background: rgba(255,255,255,.01); }
+
+/* ── Sections ── */
+.section { display: none; }
+.section.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-dot"></div>
+    <div>
+      <div class="brand-name">A-SMGCS / FHA</div>
+      <div class="brand-sub">Risk Analiz Sistemi · YTÜ</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="status-pill saved" id="save-pill">
+      <span class="status-dot"></span>
+      <span id="save-txt">kaydedildi</span>
+    </span>
+    <button class="btn-ghost" onclick="exportJSON()">JSON indir</button>
+    <button class="btn-ghost danger" onclick="clearAll()">sıfırla</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Fonksiyonlar</div>
+      <div id="func-list"></div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="storage-block">
+      <div class="storage-title">Oturum deposu</div>
+      <div class="storage-row">
+        <span class="storage-key">Fonksiyon</span>
+        <span class="storage-val" id="st-f">0 / 10</span>
+      </div>
+      <div class="storage-row">
+        <span class="storage-key">Uzman girişi</span>
+        <span class="storage-val" id="st-e">0</span>
+      </div>
+      <div class="storage-row">
+        <span class="storage-key">Son güncelleme</span>
+        <span class="storage-val" id="st-t">—</span>
+      </div>
+      <div class="storage-note">Veriler tarayıcı belleğinde tutulur. Sayfa yenilenirse sıfırlanır. Dışa aktarmak için JSON indir.</div>
+      <button class="btn-export" onclick="exportJSON()">↓ JSON olarak indir</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="pipeline-row">
+      <span class="pip-badge pb1">FHA</span>
+      <span class="pip-arrow">→</span>
+      <span class="pip-badge pb2">Z-Sayıları</span>
+      <span class="pip-arrow">→</span>
+      <span class="pip-badge pb3">DFS</span>
+      <span class="pip-arrow">→</span>
+      <span class="pip-badge pb4">Mamdani FIS</span>
+      <span class="pip-arrow">→</span>
+      <span class="pip-badge pb5">Risk Seviyesi</span>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="ntab active" onclick="switchTab('giris')">veri girişi</button>
+      <button class="ntab" onclick="switchTab('sonuc')">sonuçlar</button>
+      <button class="ntab" onclick="switchTab('adim')">adım adım</button>
+    </div>
+
+    <div id="sec-giris" class="section active">
+      <div class="panel">
+        <div class="panel-hdr">
+          <span class="panel-title" id="entry-title">— fonksiyon seçilmedi</span>
+          <span class="panel-sub" id="entry-sub">soldaki listeden seçin</span>
+        </div>
+        <div class="panel-body" id="entry-body">
+          <div class="empty-state">← bir fonksiyon seçin</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-sonuc" class="section">
+      <div class="panel">
+        <div class="panel-hdr">
+          <span class="panel-title">risk özeti</span>
+          <span class="panel-sub" id="res-sub">—</span>
+        </div>
+        <div class="panel-body">
+          <div id="res-grid"><div class="empty-state">henüz veri girilmedi</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><span class="panel-title">detaylı tablo</span></div>
+        <div class="panel-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Fonksiyon</th><th>Şiddet</th><th>Olasılık</th><th>Tespit</th><th>Ham skor</th><th>Düzeltilmiş</th><th>Sınıf</th></tr></thead>
+              <tbody id="res-table"><tr><td colspan="7" style="text-align:center;color:var(--text3);padding:2rem">—</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-adim" class="section">
+      <div class="panel">
+        <div class="panel-hdr">
+          <span class="panel-title">adım adım hesaplama</span>
+          <select id="adim-sel" style="font-size:11px;font-family:var(--mono);padding:4px 8px;background:var(--bg);border:1px solid var(--border2);color:var(--text2);border-radius:4px" onchange="renderSteps()">
+            <option value="">fonksiyon seçin...</option>
+          </select>
+        </div>
+        <div class="panel-body" id="adim-body">
+          <div class="empty-state">fonksiyon seçin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const FUNCS={F1:"RMCA Emniyet İkazı",F2:"CATC Emniyet İkazı",F3:"CMAC Emniyet İkazı",F4:"İz Yönetimi",F5:"Trafik Yönetimi",F6:"Op. Kontrol ve Komutlar",F7:"Harita ve Bilgi Gösterimi",F8:"Sistem Altyapısı",F9:"Kayıt ve Tekrar Oynatma",F10:"Kullanıcı Arayüzü"};
+const SEV={Negligible:[0,0,.2],Minor:[.1,.25,.4],Major:[.3,.5,.7],Hazardous:[.6,.75,.9],Catastrophic:[.8,1,1]};
+const PROB={Frequent:[.8,1,1],Occasional:[.55,.7,.85],Remote:[.3,.45,.6],Improbable:[.1,.2,.35],"Extremely Improbable":[0,.05,.15]};
+const DET={"Almost Certain":[.8,1,1],High:[.55,.7,.85],Moderate:[.3,.5,.7],Low:[.1,.25,.45],"Almost Impossible":[0,.05,.2]};
+const RULES={Negligible:{Frequent:"Moderate",Occasional:"Low",Remote:"Low",Improbable:"Negligible","Extremely Improbable":"Negligible"},Minor:{Frequent:"Moderate",Occasional:"Moderate",Remote:"Low",Improbable:"Low","Extremely Improbable":"Negligible"},Major:{Frequent:"High",Occasional:"High",Remote:"Moderate",Improbable:"Low","Extremely Improbable":"Low"},Hazardous:{Frequent:"Critical",Occasional:"High",Remote:"High",Improbable:"Moderate","Extremely Improbable":"Low"},Catastrophic:{Frequent:"Critical",Occasional:"Critical",Remote:"High",Improbable:"High","Extremely Improbable":"Moderate"}};
+const OUTT={Negligible:[0,0,.2],Low:[.1,.25,.4],Moderate:[.3,.5,.7],High:[.6,.75,.9],Critical:[.8,1,1]};
+const EXPERTS=["U1","U2","U3","U4","U5"];
+
+let DB={}, activeFunc=null, activeExp="U1", dirty=false;
+
+function markDirty(){dirty=true;const p=document.getElementById('save-pill');p.className='status-pill dirty';document.getElementById('save-txt').textContent='kaydedilmedi';}
+function markSaved(){dirty=false;const p=document.getElementById('save-pill');p.className='status-pill saved';document.getElementById('save-txt').textContent='kaydedildi';updateStorage();}
+
+function updateStorage(){
+  const fc=Object.keys(DB).filter(f=>Object.keys(DB[f]||{}).length>0).length;
+  let ec=0;Object.values(DB).forEach(f=>ec+=Object.keys(f||{}).length);
+  document.getElementById('st-f').textContent=fc+' / 10';
+  document.getElementById('st-e').textContent=ec;
+  const n=new Date();document.getElementById('st-t').textContent=n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');
+}
+
+function buildSidebar(){
+  document.getElementById('func-list').innerHTML=Object.entries(FUNCS).map(([id,name])=>{
+    const experts=DB[id]||{};
+    const n=Object.keys(experts).length;
+    const dc=n===0?'empty':n<5?'partial':'full';
+    return`<div class="func-item${activeFunc===id?' active':''}" onclick="selectFunc('${id}')">
+      <span class="fid">${id}</span>
+      <span class="fname">${name}</span>
+      <span class="fdot ${dc}"></span>
+    </div>`;
+  }).join('');
+}
+
+function selectFunc(id){
+  activeFunc=id; activeExp="U1";
+  buildSidebar(); renderEntry();
+}
+
+function renderEntry(){
+  if(!activeFunc)return;
+  const n=Object.keys(DB[activeFunc]||{}).length;
+  document.getElementById('entry-title').textContent=activeFunc+' — '+FUNCS[activeFunc];
+  document.getElementById('entry-sub').textContent=n+' / 5 uzman girildi';
+
+  const tabs=EXPERTS.map(uid=>{
+    const has=!!(DB[activeFunc]&&DB[activeFunc][uid]);
+    return`<button class="etab${activeExp===uid?' active':''}${has?' has-data':''}" onclick="setExp('${uid}')">${uid}</button>`;
+  }).join('');
+
+  const d=DB[activeFunc]&&DB[activeFunc][activeExp]||{};
+
+  function sel(id,map,def){
+    const opts=Object.keys(map).map(v=>`<option${(d[id]||def)===v?' selected':''}>${v}</option>`).join('');
+    return`<select id="${id}" onchange="markDirty()">${opts}</select>`;
+  }
+  function conf(id,def='0.70'){
+    return`<select id="${id}" onchange="markDirty()">
+      ${['0.50','0.60','0.70','0.80','0.90','1.00'].map(v=>`<option${(d[id]||def)===v?' selected':''}>${v}</option>`).join('')}
+    </select>`;
+  }
+
+  document.getElementById('entry-body').innerHTML=`
+    <div class="expert-bar">${tabs}</div>
+    <div class="dim-grid">
+      <div class="dim-block dim-sev">
+        <div class="dim-hdr">Şiddet / Severity</div>
+        <div class="perspective persp-opt">
+          <div class="persp-lbl"><span class="pdot-opt"></span>İyimser α</div>
+          <div class="field"><label>Seviye</label>${sel('sev_opt',SEV,'Major')}</div>
+          <div class="field"><label>Güven B</label>${conf('sev_opt_conf','0.80')}</div>
+        </div>
+        <div class="perspective persp-pess">
+          <div class="persp-lbl"><span class="pdot-pess"></span>Kötümser β</div>
+          <div class="field"><label>Seviye</label>${sel('sev_pess',SEV,'Hazardous')}</div>
+          <div class="field"><label>Güven B</label>${conf('sev_pess_conf','0.70')}</div>
+        </div>
+      </div>
+      <div class="dim-block dim-prob">
+        <div class="dim-hdr">Olasılık / Probability</div>
+        <div class="perspective persp-opt">
+          <div class="persp-lbl"><span class="pdot-opt"></span>İyimser α</div>
+          <div class="field"><label>Seviye</label>${sel('prob_opt',PROB,'Remote')}</div>
+          <div class="field"><label>Güven B</label>${conf('prob_opt_conf','0.80')}</div>
+        </div>
+        <div class="perspective persp-pess">
+          <div class="persp-lbl"><span class="pdot-pess"></span>Kötümser β</div>
+          <div class="field"><label>Seviye</label>${sel('prob_pess',PROB,'Occasional')}</div>
+          <div class="field"><label>Güven B</label>${conf('prob_pess_conf','0.70')}</div>
+        </div>
+      </div>
+      <div class="dim-block dim-det">
+        <div class="dim-hdr">Tespit / Detectability</div>
+        <div class="perspective persp-opt">
+          <div class="persp-lbl"><span class="pdot-opt"></span>İyimser α</div>
+          <div class="field"><label>Kapasite</label>${sel('det_opt',DET,'Almost Certain')}</div>
+          <div class="field"><label>Güven B</label>${conf('det_opt_conf','0.80')}</div>
+        </div>
+        <div class="perspective persp-pess">
+          <div class="persp-lbl"><span class="pdot-pess"></span>Kötümser β</div>
+          <div class="field"><label>Kapasite</label>${sel('det_pess',DET,'Moderate')}</div>
+          <div class="field"><label>Güven B</label>${conf('det_pess_conf','0.70')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-save" onclick="saveEntry()">kaydet</button>
+      <button class="btn-del" onclick="deleteEntry()">bu girişi sil</button>
+      <span class="toast" id="ftx"></span>
+    </div>`;
+}
+
+function setExp(uid){activeExp=uid;renderEntry();}
+
+function readForm(){
+  const fields=['sev_opt','sev_opt_conf','sev_pess','sev_pess_conf','prob_opt','prob_opt_conf','prob_pess','prob_pess_conf','det_opt','det_opt_conf','det_pess','det_pess_conf'];
+  const d={};let ok=true;
+  fields.forEach(f=>{
+    const el=document.getElementById(f);
+    if(!el||!el.value){ok=false;if(el)el.classList.add('invalid');}
+    else{el.classList.remove('invalid');d[f]=el.value;}
+  });
+  return ok?d:null;
+}
+
+function toast(msg,type){
+  const el=document.getElementById('ftx');
+  if(!el)return;
+  el.className='toast '+type+' show';el.textContent=msg;
+  setTimeout(()=>{el.className='toast';el.textContent='';},2500);
+}
+
+function saveEntry(){
+  const d=readForm();
+  if(!d){toast('tüm alanları doldurun','err');return;}
+  if(!DB[activeFunc])DB[activeFunc]={};
+  DB[activeFunc][activeExp]=d;
+  markSaved();buildSidebar();
+  document.getElementById('entry-sub').textContent=Object.keys(DB[activeFunc]).length+' / 5 uzman girildi';
+  document.querySelectorAll('.etab').forEach((t,i)=>{if(EXPERTS[i]===activeExp)t.classList.add('has-data');});
+  toast(activeFunc+'/'+activeExp+' kaydedildi','ok');
+  refreshResults();
+}
+
+function deleteEntry(){
+  if(!DB[activeFunc]||!DB[activeFunc][activeExp]){toast('silinecek kayıt yok','inf');return;}
+  delete DB[activeFunc][activeExp];
+  if(!Object.keys(DB[activeFunc]).length)delete DB[activeFunc];
+  markSaved();buildSidebar();renderEntry();
+  toast('silindi','inf');refreshResults();
+}
+
+function clearAll(){
+  if(!confirm('Tüm veriler silinecek. Devam edilsin mi?'))return;
+  DB={};activeFunc=null;activeExp='U1';
+  buildSidebar();
+  document.getElementById('entry-title').textContent='— fonksiyon seçilmedi';
+  document.getElementById('entry-sub').textContent='soldaki listeden seçin';
+  document.getElementById('entry-body').innerHTML='<div class="empty-state">← bir fonksiyon seçin</div>';
+  markSaved();refreshResults();
+}
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='asmgcs_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+
+function tfnC(t){return(t[0]+t[1]+t[2])/3;}
+function zW(c){return Math.sqrt(parseFloat(c)||.7);}
+function tfnWA(ts,ws){const s=ws.reduce((a,b)=>a+b,0)||1;return[0,1,2].map(i=>ts.reduce((a,t,j)=>a+t[i]*ws[j],0)/s);}
+function dfsC(o,p,wo,wp){const s=wo+wp||1;return[0,1,2].map(i=>(o[i]*wo+p[i]*wp)/s);}
+function triMF(x,a,b,c){const l=b>a?Math.max(0,Math.min(1,(x-a)/(b-a))):(x<=b?1:0);const r=c>b?Math.max(0,Math.min(1,(c-x)/(c-b))):(x>=b?1:0);return Math.min(l,r);}
+
+function mamdani(sc,pc){
+  const sm={};Object.entries(SEV).forEach(([l,t])=>{sm[l]=triMF(sc,...t);});
+  const pm={};Object.entries(PROB).forEach(([l,t])=>{pm[l]=triMF(pc,...t);});
+  const act={};
+  Object.entries(RULES).forEach(([sl,ps])=>{Object.entries(ps).forEach(([pl,out])=>{const s=Math.min(sm[sl]||0,pm[pl]||0);if(s>0)act[out]=Math.max(act[out]||0,s);});});
+  const N=200,xs=Array.from({length:N},(_,i)=>i/(N-1));
+  const agg=xs.map(x=>{let v=0;Object.entries(act).forEach(([l,s])=>{v=Math.max(v,Math.min(s,triMF(x,...OUTT[l])));});return v;});
+  const den=agg.reduce((a,b)=>a+b,0);
+  return{score:den>1e-9?agg.reduce((a,v,i)=>a+xs[i]*v,0)/den:0,act};
+}
+
+function computeFunc(fid){
+  const experts=DB[fid];
+  if(!experts||!Object.keys(experts).length)return null;
+  const sD=[],pD=[],dD=[],eW=[],steps=[];
+  Object.entries(experts).forEach(([uid,d])=>{
+    const ws=zW(d.sev_opt_conf),wp=zW(d.sev_pess_conf);
+    const wpo=zW(d.prob_opt_conf),wpp=zW(d.prob_pess_conf);
+    const wdo=zW(d.det_opt_conf),wdp=zW(d.det_pess_conf);
+    const sd=dfsC(SEV[d.sev_opt]||SEV.Major,SEV[d.sev_pess]||SEV.Hazardous,ws,wp);
+    const pd=dfsC(PROB[d.prob_opt]||PROB.Remote,PROB[d.prob_pess]||PROB.Occasional,wpo,wpp);
+    const dd=dfsC(DET[d.det_opt]||DET.Moderate,DET[d.det_pess]||DET.Low,wdo,wdp);
+    const ew=(ws+wp+wpo+wpp+wdo+wdp)/6;
+    sD.push(sd);pD.push(pd);dD.push(dd);eW.push(ew);
+    steps.push({uid,ws:ws.toFixed(3),wp:wp.toFixed(3),ew:ew.toFixed(3),sd:sd.map(v=>v.toFixed(3)),pd:pd.map(v=>v.toFixed(3))});
+  });
+  const aS=tfnWA(sD,eW),aP=tfnWA(pD,eW),aD=tfnWA(dD,eW);
+  const sc=tfnC(aS),pc=tfnC(aP),dc=tfnC(aD);
+  const{score:raw,act}=mamdani(sc,pc);
+  const adj=Math.max(0,Math.min(1,raw*(1-dc*.30)));
+  return{fid,fname:FUNCS[fid],aS,aP,aD,sc,pc,dc,raw,adj,act,steps,n:eW.length};
+}
+
+function rCls(s){return s<.2?'neg':s<.4?'low':s<.6?'mod':s<.8?'high':'crit';}
+function rLbl(s){return s<.2?'Negligible':s<.4?'Low':s<.6?'Moderate':s<.8?'High':'Critical';}
+
+function refreshResults(){
+  const rs=Object.keys(DB).filter(f=>Object.keys(DB[f]||{}).length>0).map(f=>computeFunc(f)).filter(Boolean).sort((a,b)=>b.adj-a.adj);
+  const rg=document.getElementById('res-grid');
+  const rt=document.getElementById('res-table');
+  if(!rs.length){
+    rg.innerHTML='<div class="empty-state">henüz veri girilmedi</div>';
+    rt.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:2rem">—</td></tr>';
+    document.getElementById('res-sub').textContent='—';
+    return;
+  }
+  document.getElementById('res-sub').textContent=rs.length+' fonksiyon hesaplandı';
+  rg.innerHTML='<div class="result-grid">'+rs.map(r=>{
+    const c=rCls(r.adj),l=rLbl(r.adj);
+    return`<div class="rcard ${c}">
+      <div class="rcard-id">${r.fid} · ${r.n} uzman</div>
+      <div class="rcard-score">${r.adj.toFixed(3)}</div>
+      <span class="rcard-pill">${l}</span>
+      <div class="rcard-meta">${r.fname}<br>S=${r.sc.toFixed(2)} P=${r.pc.toFixed(2)} D=${r.dc.toFixed(2)}</div>
+    </div>`;
+  }).join('')+'</div>';
+  rt.innerHTML=rs.map(r=>{
+    const c=rCls(r.adj),l=rLbl(r.adj);
+    const colors={neg:'#22c55e',low:'#86efac',mod:'#f59e0b',high:'#fb923c',crit:'#ef4444'};
+    return`<tr>
+      <td>${r.fid}<br><span style="color:var(--text3);font-size:9px">${r.fname}</span></td>
+      <td>${r.sc.toFixed(3)}</td><td>${r.pc.toFixed(3)}</td><td>${r.dc.toFixed(3)}</td>
+      <td>${r.raw.toFixed(4)}</td>
+      <td style="color:${colors[c]}">${r.adj.toFixed(4)}</td>
+      <td><span style="font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;background:rgba(255,255,255,.05);color:${colors[c]}">${l}</span></td>
+    </tr>`;
+  }).join('');
+  const sel=document.getElementById('adim-sel');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">fonksiyon seçin...</option>'+rs.map(r=>`<option value="${r.fid}">${r.fid} — ${r.fname}</option>`).join('');
+  if(cur)sel.value=cur;
+}
+
+function renderSteps(){
+  const fid=document.getElementById('adim-sel').value;
+  const ab=document.getElementById('adim-body');
+  if(!fid||!DB[fid]){ab.innerHTML='<div class="empty-state">veri girilmemiş</div>';return;}
+  const r=computeFunc(fid);if(!r){ab.innerHTML='<div class="empty-state">—</div>';return;}
+  const topAct=Object.entries(r.act).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([l,s])=>`${l}:${s.toFixed(2)}`).join('  ·  ');
+  const af=(1-r.dc*.30).toFixed(3);
+  const barColor=r.adj<.4?'#22c55e':r.adj<.6?'#f59e0b':r.adj<.8?'#fb923c':'#ef4444';
+  ab.innerHTML=`<div class="step-list">
+    <div class="step-row">
+      <div class="step-icon" style="background:rgba(59,130,246,.1);color:#60a5fa">Z</div>
+      <div class="step-content">
+        <h4>Z-Sayısı ağırlıklandırması</h4>
+        <p>${r.steps.map(s=>`${s.uid}: α=√B → w_exp=${s.ew}`).join('  |  ')}</p>
+      </div>
+      <div class="step-val" style="color:#60a5fa">${r.n} uzman</div>
+    </div>
+    <div class="step-row">
+      <div class="step-icon" style="background:rgba(167,139,250,.1);color:#c4b5fd">D</div>
+      <div class="step-content">
+        <h4>DFS birleşimi (α ⊕ β)</h4>
+        <p>Şid: (${r.aS.map(v=>v.toFixed(3))})  ·  Ola: (${r.aP.map(v=>v.toFixed(3))})</p>
+      </div>
+      <div class="step-val" style="color:#c4b5fd">TFN ✓</div>
+    </div>
+    <div class="step-row">
+      <div class="step-icon" style="background:rgba(245,158,11,.1);color:#fcd34d">C</div>
+      <div class="step-content">
+        <h4>Defuzzification — ağırlık merkezi</h4>
+        <p>S=(a+b+c)/3 = ${r.sc.toFixed(4)}  ·  P = ${r.pc.toFixed(4)}</p>
+      </div>
+      <div class="step-val" style="color:#fcd34d">${r.sc.toFixed(3)} · ${r.pc.toFixed(3)}</div>
+    </div>
+    <div class="step-row">
+      <div class="step-icon" style="background:rgba(251,146,60,.1);color:#fdba74">F</div>
+      <div class="step-content">
+        <h4>Mamdani FIS — kural aktivasyonu</h4>
+        <p>${topAct}</p>
+        <div class="pbar"><div class="pbar-fill" style="width:${(r.raw*100).toFixed(1)}%;background:#3b82f6"></div></div>
+      </div>
+      <div class="step-val" style="color:#fdba74">${r.raw.toFixed(4)}</div>
+    </div>
+    <div class="step-row">
+      <div class="step-icon" style="background:rgba(34,197,94,.1);color:#86efac">R</div>
+      <div class="step-content">
+        <h4>Detectability düzeltmesi</h4>
+        <p>${r.raw.toFixed(4)} × ${af} = ${r.adj.toFixed(4)}</p>
+        <div class="pbar"><div class="pbar-fill" style="width:${(r.adj*100).toFixed(1)}%;background:${barColor}"></div></div>
+      </div>
+      <div class="step-val" style="color:${barColor}">${r.adj.toFixed(4)}<br><span style="font-size:9px">${rLbl(r.adj)}</span></div>
+    </div>
+  </div>`;
+}
+
+function switchTab(id){
+  ['giris','sonuc','adim'].forEach((s,i)=>{
+    document.getElementById('sec-'+s).className='section'+(s===id?' active':'');
+    document.querySelectorAll('.ntab')[i].className='ntab'+(s===id?' active':'');
+  });
+  if(id==='sonuc')refreshResults();
+  if(id==='adim')renderSteps();
+}
+
+buildSidebar();
+updateStorage();
+</script>
+</body>
+</html>
