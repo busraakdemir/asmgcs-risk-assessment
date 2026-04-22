@@ -328,6 +328,7 @@ tr:hover td { background: rgba(255,255,255,.01); }
       <span class="status-dot"></span>
       <span id="save-txt">kaydedildi</span>
     </span>
+    <button class="btn-ghost" style="border-color:#2dd4bf;color:#2dd4bf" onclick="loadDemo()">demo verisi</button>
     <button class="btn-ghost" onclick="exportJSON()">JSON indir</button>
     <button class="btn-ghost danger" onclick="clearAll()">sıfırla</button>
   </div>
@@ -934,6 +935,47 @@ function switchTab(id){
   });
   if(id==='sonuc')refreshResults();
   if(id==='adim')renderSteps();
+}
+
+function loadDemo(){
+  if(!confirm('Demo verisi yüklenecek. Mevcut veriler silinecek. Devam edilsin mi?'))return;
+  const sevLvls=['Negligible','Minor','Major','Hazardous','Catastrophic'];
+  const probLvls=['Extremely Improbable','Improbable','Remote','Occasional','Frequent'];
+  const detLvls=['Almost Impossible','Low','Moderate','High','Almost Certain'];
+  const confLvls=['0.50','0.60','0.70','0.80','0.90','1.00'];
+  const profiles={
+    F1:{sev:[3,4],prob:[2,3],det:[2,1]},  // RMCA - En kritik (pist çakışması)
+    F2:{sev:[3,4],prob:[1,2],det:[3,2]},  // CATC - Yüksek (çakışan müsaade)
+    F3:{sev:[2,3],prob:[2,3],det:[2,2]},  // CMAC - Orta-yüksek (prosedür)
+    F4:{sev:[2,3],prob:[1,2],det:[3,2]},  // İz Yönetimi
+    F5:{sev:[2,3],prob:[2,3],det:[2,2]},  // Trafik Yönetimi
+    F6:{sev:[1,2],prob:[2,3],det:[3,3]},  // Op. Kontrol
+    F7:{sev:[1,2],prob:[1,2],det:[3,3]},  // Harita
+    F8:{sev:[2,3],prob:[1,2],det:[2,2]},  // Sistem Altyapısı
+    F9:{sev:[0,1],prob:[1,2],det:[3,4]},  // Kayıt - Düşük
+    F10:{sev:[1,2],prob:[1,2],det:[3,3]}, // UI
+  };
+  const pick=(arr,idx,offset)=>arr[Math.min(arr.length-1,Math.max(0,idx+offset))];
+  const pickC=(b)=>confLvls[Math.min(5,Math.max(0,b))];
+  DB={};
+  Object.entries(profiles).forEach(([fid,p])=>{
+    DB[fid]={};
+    ['U1','U2','U3','U4','U5'].forEach((uid,i)=>{
+      const j=[-1,0,0,1,0][i];
+      DB[fid][uid]={
+        sev_opt:pick(sevLvls,p.sev[0],j), sev_opt_conf:pickC(3+j),
+        sev_pess:pick(sevLvls,p.sev[1],j), sev_pess_conf:pickC(2+j),
+        prob_opt:pick(probLvls,p.prob[0],j), prob_opt_conf:pickC(3+j),
+        prob_pess:pick(probLvls,p.prob[1],j), prob_pess_conf:pickC(2+j),
+        det_opt:pick(detLvls,p.det[0],j), det_opt_conf:pickC(3+j),
+        det_pess:pick(detLvls,p.det[1],j), det_pess_conf:pickC(2+j),
+      };
+    });
+  });
+  markSaved(); buildSidebar(); refreshResults(); updateStorage();
+  switchTab('sonuc');
+  const t=document.getElementById('form-toast');
+  if(t){t.className='toast ok show';t.textContent='Demo verisi yüklendi';setTimeout(()=>{t.className='toast';},2500);}
 }
 
 buildSidebar();
