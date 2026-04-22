@@ -608,12 +608,240 @@ tr:hover td { background: rgba(255,255,255,.01); }
 
 <script>
 const FUNCS={F1:"RMCA Emniyet İkazı",F2:"CATC Emniyet İkazı",F3:"CMAC Emniyet İkazı",F4:"İz Yönetimi",F5:"Trafik Yönetimi",F6:"Op. Kontrol ve Komutlar",F7:"Harita ve Bilgi Gösterimi",F8:"Sistem Altyapısı",F9:"Kayıt ve Tekrar Oynatma",F10:"Kullanıcı Arayüzü"};
-const SEV={Negligible:[0,0,.2],Minor:[.1,.25,.4],Major:[.3,.5,.7],Hazardous:[.6,.75,.9],Catastrophic:[.8,1,1]};
-const PROB={Frequent:[.8,1,1],Occasional:[.55,.7,.85],Remote:[.3,.45,.6],Improbable:[.1,.2,.35],"Extremely Improbable":[0,.05,.15]};
-const DET={"Almost Certain":[.8,1,1],High:[.55,.7,.85],Moderate:[.3,.5,.7],Low:[.1,.25,.45],"Almost Impossible":[0,.05,.2]};
-const RULES={Negligible:{Frequent:"Moderate",Occasional:"Low",Remote:"Low",Improbable:"Negligible","Extremely Improbable":"Negligible"},Minor:{Frequent:"Moderate",Occasional:"Moderate",Remote:"Low",Improbable:"Low","Extremely Improbable":"Negligible"},Major:{Frequent:"High",Occasional:"High",Remote:"Moderate",Improbable:"Low","Extremely Improbable":"Low"},Hazardous:{Frequent:"Critical",Occasional:"High",Remote:"High",Improbable:"Moderate","Extremely Improbable":"Low"},Catastrophic:{Frequent:"Critical",Occasional:"Critical",Remote:"High",Improbable:"High","Extremely Improbable":"Moderate"}};
-const OUTT={Negligible:[0,0,.2],Low:[.1,.25,.4],Moderate:[.3,.5,.7],High:[.6,.75,.9],Critical:[.8,1,1]};
+// ── DFS Skala Tanımları — Tüysüz & Kahraman (2024) ──────────────
+// Her seviye: {O_mu:[a,b,c], O_vt:[a,b,c], P_mu:[a,b,c], P_vt:[a,b,c]}
+// Kural: P_mu = O_vt, P_vt = O_mu  (tersi)
+function mkLvl(omu,ovt){return{O_mu:omu,O_vt:ovt,P_mu:ovt,P_vt:omu};}
+
+const SEV={
+  Negligible:  mkLvl([.10,.20,.30],[.50,.60,.70]),
+  Minor:       mkLvl([.25,.35,.45],[.35,.45,.55]),
+  Major:       mkLvl([.40,.50,.60],[.20,.30,.40]),
+  Hazardous:   mkLvl([.55,.65,.75],[.05,.15,.25]),
+  Catastrophic:mkLvl([.70,.80,.90],[.00,.05,.10]),
+};
+const PROB={
+  'Extremely Improbable':mkLvl([.10,.20,.30],[.50,.60,.70]),
+  Improbable:            mkLvl([.25,.35,.45],[.35,.45,.55]),
+  Remote:                mkLvl([.40,.50,.60],[.20,.30,.40]),
+  Occasional:            mkLvl([.55,.65,.75],[.05,.15,.25]),
+  Frequent:              mkLvl([.70,.80,.90],[.00,.05,.10]),
+};
+const DET={
+  'Almost Impossible':mkLvl([.10,.20,.30],[.50,.60,.70]),
+  Low:                mkLvl([.25,.35,.45],[.35,.45,.55]),
+  Moderate:           mkLvl([.40,.50,.60],[.20,.30,.40]),
+  High:               mkLvl([.55,.65,.75],[.05,.15,.25]),
+  'Almost Certain':   mkLvl([.70,.80,.90],[.00,.05,.10]),
+};
+const CONF={
+  '0.50':{mu:[.10,.15,.20],vt:[.65,.75,.80]},
+  '0.60':{mu:[.20,.25,.30],vt:[.50,.60,.70]},
+  '0.70':{mu:[.30,.40,.50],vt:[.30,.40,.50]},
+  '0.80':{mu:[.50,.60,.70],vt:[.10,.20,.30]},
+  '0.90':{mu:[.60,.70,.80],vt:[.00,.10,.20]},
+  '1.00':{mu:[.70,.80,.90],vt:[.00,.05,.10]},
+};
+
+// ── FIS Çıktı TFN'leri ───────────────────────────────────────────
+const OUTT={
+  Negligible:[.00,.10,.20],
+  Low:       [.15,.30,.45],
+  Moderate:  [.35,.50,.65],
+  High:      [.55,.70,.85],
+  Critical:  [.80,.90,1.0],
+};
+
+// ── FIS 3D Kural Tablosu — ICAO DOC 9859 + Detectability ────────
+const SEV_LVLS =['Negligible','Minor','Major','Hazardous','Catastrophic'];
+const PROB_LVLS=['Extremely Improbable','Improbable','Remote','Occasional','Frequent'];
+const DET_LVLS =['Almost Impossible','Low','Moderate','High','Almost Certain'];
+const RISK_LVLS=['Negligible','Low','Moderate','High','Critical'];
+
+const BASE_RULES_2D={
+  Negligible:  ['Negligible','Negligible','Low',     'Low',     'Low'     ],
+  Minor:       ['Negligible','Low',       'Low',     'Moderate','Moderate'],
+  Major:       ['Low',       'Low',       'Moderate','High',    'High'    ],
+  Hazardous:   ['Low',       'Moderate',  'High',    'High',    'Critical'],
+  Catastrophic:['Moderate',  'High',      'High',    'Critical','Critical'],
+};
+const DET_OFFSET={'Almost Impossible':1,'Low':1,'Moderate':0,'High':-1,'Almost Certain':-1};
+const RISK_FLOOR={Catastrophic:'Moderate',Hazardous:'Low'};
+
+// 125 kuralı üret
+const FIS_RULES_3D={};
+SEV_LVLS.forEach(sev=>{
+  PROB_LVLS.forEach((prob,ip)=>{
+    DET_LVLS.forEach(det=>{
+      const base=BASE_RULES_2D[sev][ip];
+      const offset=DET_OFFSET[det];
+      let idx=RISK_LVLS.indexOf(base)+offset;
+      idx=Math.max(0,Math.min(4,idx));
+      let result=RISK_LVLS[idx];
+      if(RISK_FLOOR[sev]){
+        const fi=RISK_LVLS.indexOf(RISK_FLOOR[sev]);
+        if(idx<fi) result=RISK_FLOOR[sev];
+      }
+      FIS_RULES_3D[`${sev}|${prob}|${det}`]=result;
+    });
+  });
+});
+
+const K=0.68;
 const EXPERTS=["U1","U2","U3","U4","U5"];
+
+// ── Yardımcı Fonksiyonlar ────────────────────────────────────────
+function centroid(t){return(t[0]+t[1]+t[2])/3;}
+function scaleTFN(t,f){return t.map(v=>Math.min(1,v*f));}
+function triMF(x,a,b,c){
+  const l=b>a?Math.max(0,Math.min(1,(x-a)/(b-a))):(x<=b?1:0);
+  const r=c>b?Math.max(0,Math.min(1,(c-x)/(c-b))):(x>=b?1:0);
+  return Math.min(l,r);
+}
+
+// ── Z-Dönüşümü — Kang et al. (2012) ─────────────────────────────
+function zTransform(baseDfn, confKey){
+  const conf=CONF[confKey]||CONF['0.70'];
+  const alpha=centroid(conf.mu);
+  const sq=Math.sqrt(alpha);
+  return{
+    O_mu:scaleTFN(baseDfn.O_mu,sq),
+    O_vt:scaleTFN(baseDfn.O_vt,sq),
+    P_mu:scaleTFN(baseDfn.P_mu,sq),
+    P_vt:scaleTFN(baseDfn.P_vt,sq),
+    alpha,
+  };
+}
+
+// ── DWGM Operatörü — Cebi et al. (2023) Denklem 13 ──────────────
+function dwgm(dfns, weights){
+  const n=dfns.length;
+  const tot=weights.reduce((a,b)=>a+b,0)||1;
+  const lam=weights.map(w=>w/tot);
+  const res={O_mu:[],O_vt:[],P_mu:[],P_vt:[]};
+  for(let pt=0;pt<3;pt++){
+    // O_mu: ∏ aᵢ^λᵢ
+    const omuVals=dfns.map(d=>d.O_mu[pt]);
+    const o_mu=omuVals.every(v=>v>0)
+      ?Math.exp(omuVals.reduce((s,v,i)=>s+lam[i]*Math.log(v),0))
+      :0;
+    // O_vt: 1 − ∏(1−bᵢ)^λᵢ
+    const o_vt=1-Math.exp(dfns.reduce((s,d,i)=>s+lam[i]*Math.log(Math.max(1e-12,1-d.O_vt[pt])),0));
+    // P_mu: ∏cᵢ / [Σ cᵢⁿ⁻¹ λᵢ(1−cᵢ) + ∏cᵢ]
+    const cv=dfns.map(d=>d.P_mu[pt]);
+    const prodC=Math.exp(cv.reduce((s,v)=>s+Math.log(Math.max(1e-12,v)),0));
+    const denC=cv.reduce((s,v,i)=>s+Math.pow(v,n-1)*lam[i]*(1-v),0)+prodC;
+    const p_mu=prodC<1e-12?0:prodC/denC;
+    // P_vt: Σλᵢdᵢ / [1 + Σ(λᵢdᵢ − dᵢ/n)]
+    const dv=dfns.map(d=>d.P_vt[pt]);
+    const sLd=dv.reduce((s,v,i)=>s+lam[i]*v,0);
+    const sAdj=dv.reduce((s,v,i)=>s+lam[i]*v-v/n,0);
+    const p_vt=sLd/Math.max(1e-12,1+sAdj);
+    res.O_mu.push(o_mu);res.O_vt.push(o_vt);
+    res.P_mu.push(p_mu);res.P_vt.push(p_vt);
+  }
+  return res;
+}
+
+// ── CI ve SI — Cebi et al. (2023) Denklem 14-15 ─────────────────
+function ciVal(dfn){
+  const a=dfn.O_mu[1],b=dfn.O_vt[1],c=dfn.P_mu[1],d=dfn.P_vt[1];
+  return 1-Math.sqrt(((a-d)**2+(b-c)**2+(1-a-b)**2+(1-c-d)**2)/2);
+}
+function siVal(dfn){
+  const a=dfn.O_mu[1],b=dfn.O_vt[1],c=dfn.P_mu[1],d=dfn.P_vt[1];
+  return Math.max(0,(a+b-c+d)*ciVal(dfn)/(2*K));
+}
+
+// ── Mamdani FIS 3D ───────────────────────────────────────────────
+function mamdaniFIS(siSev,siProb,siDet){
+  function fuzzify(val,levels){
+    const n=levels.length,mbs={};
+    levels.forEach((lvl,i)=>{
+      const center=i/(n-1),width=1/(n-1);
+      mbs[lvl]=triMF(val,Math.max(0,center-width),center,Math.min(1,center+width));
+    });
+    return mbs;
+  }
+  const sevMbs=fuzzify(siSev,SEV_LVLS);
+  const prMbs =fuzzify(siProb,PROB_LVLS);
+  const detMbs=fuzzify(siDet,DET_LVLS);
+
+  const activated={};
+  Object.entries(FIS_RULES_3D).forEach(([key,outLvl])=>{
+    const [s,p,d]=key.split('|');
+    const str=Math.min(sevMbs[s]||0,prMbs[p]||0,detMbs[d]||0);
+    if(str>0) activated[outLvl]=Math.max(activated[outLvl]||0,str);
+  });
+
+  const N=300,xs=Array.from({length:N},(_,i)=>i/(N-1));
+  const agg=xs.map(x=>{
+    let v=0;
+    Object.entries(activated).forEach(([lvl,str])=>{
+      v=Math.max(v,Math.min(str,triMF(x,...OUTT[lvl])));
+    });
+    return v;
+  });
+  const den=agg.reduce((a,b)=>a+b,0);
+  const score=den>1e-9?agg.reduce((s,v,i)=>s+xs[i]*v,0)/den:0;
+  return{score:Math.round(score*10000)/10000,activated};
+}
+
+// ── computeFunc: Tek fonksiyon için tam pipeline ──────────────────
+function computeFunc(fid){
+  const experts=DB[fid];
+  if(!experts||!Object.keys(experts).length)return null;
+
+  const dfnsSev=[],dfnsProb=[],dfnsDet=[],weights=[],steps=[];
+
+  Object.entries(experts).forEach(([uid,d])=>{
+    // Z-dönüşümü
+    const sevOptZ =zTransform(SEV[d.sev_opt] ||SEV.Major,    d.sev_opt_conf);
+    const sevPssZ =zTransform(SEV[d.sev_pess]||SEV.Hazardous,d.sev_pess_conf);
+    const prOptZ  =zTransform(PROB[d.prob_opt]||PROB.Remote,  d.prob_opt_conf);
+    const prPssZ  =zTransform(PROB[d.prob_pess]||PROB.Occasional,d.prob_pess_conf);
+    const detOptZ =zTransform(DET[d.det_opt]||DET.Moderate,  d.det_opt_conf);
+    const detPssZ =zTransform(DET[d.det_pess]||DET.Low,      d.det_pess_conf);
+
+    // DFS sayısı: O <- iyimser, P <- kötümser
+    const dfnSev={O_mu:sevOptZ.O_mu,O_vt:sevOptZ.O_vt,P_mu:sevPssZ.P_mu,P_vt:sevPssZ.P_vt};
+    const dfnProb={O_mu:prOptZ.O_mu,O_vt:prOptZ.O_vt,P_mu:prPssZ.P_mu,P_vt:prPssZ.P_vt};
+    const dfnDet={O_mu:detOptZ.O_mu,O_vt:detOptZ.O_vt,P_mu:detPssZ.P_mu,P_vt:detPssZ.P_vt};
+
+    const alpha=(sevOptZ.alpha+sevPssZ.alpha)/2;
+    dfnsSev.push(dfnSev);dfnsProb.push(dfnProb);dfnsDet.push(dfnDet);
+    weights.push(alpha);
+
+    steps.push({
+      uid,
+      ci_sev:ciVal(dfnSev).toFixed(3), si_sev:siVal(dfnSev).toFixed(3),
+      ci_prob:ciVal(dfnProb).toFixed(3),si_prob:siVal(dfnProb).toFixed(3),
+      ci_det:ciVal(dfnDet).toFixed(3), si_det:siVal(dfnDet).toFixed(3),
+    });
+  });
+
+  // DWGM agregasyonu
+  const aggSev =dwgm(dfnsSev, weights);
+  const aggProb=dwgm(dfnsProb,weights);
+  const aggDet =dwgm(dfnsDet, weights);
+
+  const siSev =siVal(aggSev);
+  const siProb=siVal(aggProb);
+  const siDet =siVal(aggDet);
+  const ciSev =ciVal(aggSev);
+  const ciProb=ciVal(aggProb);
+  const ciDet =ciVal(aggDet);
+
+  const{score,activated}=mamdaniFIS(siSev,siProb,siDet);
+
+  return{
+    fid,fname:FUNCS[fid],
+    n:weights.length,
+    ciSev,siSev,ciProb,siProb,ciDet,siDet,
+    aggSev,aggProb,aggDet,
+    score,activated,steps,
+  };
+}
 
 
 let DB={}, activeFunc=null, activeExp="U1", dirty=false;
@@ -777,49 +1005,12 @@ function exportJSON(){
 }
 
 function tfnC(t){return(t[0]+t[1]+t[2])/3;}
-function zW(c){return Math.sqrt(parseFloat(c)||.7);}
-function tfnWA(ts,ws){const s=ws.reduce((a,b)=>a+b,0)||1;return[0,1,2].map(i=>ts.reduce((a,t,j)=>a+t[i]*ws[j],0)/s);}
-function dfsC(o,p,wo,wp){const s=wo+wp||1;return[0,1,2].map(i=>(o[i]*wo+p[i]*wp)/s);}
-function triMF(x,a,b,c){const l=b>a?Math.max(0,Math.min(1,(x-a)/(b-a))):(x<=b?1:0);const r=c>b?Math.max(0,Math.min(1,(c-x)/(c-b))):(x>=b?1:0);return Math.min(l,r);}
-
-function mamdani(sc,pc){
-  const sm={};Object.entries(SEV).forEach(([l,t])=>{sm[l]=triMF(sc,...t);});
-  const pm={};Object.entries(PROB).forEach(([l,t])=>{pm[l]=triMF(pc,...t);});
-  const act={};
-  Object.entries(RULES).forEach(([sl,ps])=>{Object.entries(ps).forEach(([pl,out])=>{const s=Math.min(sm[sl]||0,pm[pl]||0);if(s>0)act[out]=Math.max(act[out]||0,s);});});
-  const N=200,xs=Array.from({length:N},(_,i)=>i/(N-1));
-  const agg=xs.map(x=>{let v=0;Object.entries(act).forEach(([l,s])=>{v=Math.max(v,Math.min(s,triMF(x,...OUTT[l])));});return v;});
-  const den=agg.reduce((a,b)=>a+b,0);
-  return{score:den>1e-9?agg.reduce((a,v,i)=>a+xs[i]*v,0)/den:0,act};
-}
-
-function computeFunc(fid){
-  const experts=DB[fid];
-  if(!experts||!Object.keys(experts).length)return null;
-  const sD=[],pD=[],dD=[],eW=[],steps=[];
-  Object.entries(experts).forEach(([uid,d])=>{
-    const ws=zW(d.sev_opt_conf),wp=zW(d.sev_pess_conf);
-    const wpo=zW(d.prob_opt_conf),wpp=zW(d.prob_pess_conf);
-    const wdo=zW(d.det_opt_conf),wdp=zW(d.det_pess_conf);
-    const sd=dfsC(SEV[d.sev_opt]||SEV.Major,SEV[d.sev_pess]||SEV.Hazardous,ws,wp);
-    const pd=dfsC(PROB[d.prob_opt]||PROB.Remote,PROB[d.prob_pess]||PROB.Occasional,wpo,wpp);
-    const dd=dfsC(DET[d.det_opt]||DET.Moderate,DET[d.det_pess]||DET.Low,wdo,wdp);
-    const ew=(ws+wp+wpo+wpp+wdo+wdp)/6;
-    sD.push(sd);pD.push(pd);dD.push(dd);eW.push(ew);
-    steps.push({uid,ws:ws.toFixed(3),wp:wp.toFixed(3),ew:ew.toFixed(3),sd:sd.map(v=>v.toFixed(3)),pd:pd.map(v=>v.toFixed(3))});
-  });
-  const aS=tfnWA(sD,eW),aP=tfnWA(pD,eW),aD=tfnWA(dD,eW);
-  const sc=tfnC(aS),pc=tfnC(aP),dc=tfnC(aD);
-  const{score:raw,act}=mamdani(sc,pc);
-  const adj=Math.max(0,Math.min(1,raw*(1-dc*.30)));
-  return{fid,fname:FUNCS[fid],aS,aP,aD,sc,pc,dc,raw,adj,act,steps,n:eW.length};
-}
 
 function rCls(s){return s<.2?'neg':s<.4?'low':s<.6?'mod':s<.8?'high':'crit';}
 function rLbl(s){return s<.2?'Negligible':s<.4?'Low':s<.6?'Moderate':s<.8?'High':'Critical';}
 
 function refreshResults(){
-  const rs=Object.keys(DB).filter(f=>Object.keys(DB[f]||{}).length>0).map(f=>computeFunc(f)).filter(Boolean).sort((a,b)=>b.adj-a.adj);
+  const rs=Object.keys(DB).filter(f=>Object.keys(DB[f]||{}).length>0).map(f=>computeFunc(f)).filter(Boolean).sort((a,b)=>b.score-a.score);
   const rg=document.getElementById('res-grid');
   const rt=document.getElementById('res-table');
   if(!rs.length){
@@ -830,22 +1021,22 @@ function refreshResults(){
   }
   document.getElementById('res-sub').textContent=rs.length+' fonksiyon hesaplandı';
   rg.innerHTML='<div class="result-grid">'+rs.map(r=>{
-    const c=rCls(r.adj),l=rLbl(r.adj);
+    const c=rCls(r.score),l=rLbl(r.score);
     return`<div class="rcard ${c}">
       <div class="rcard-id">${r.fid} · ${r.n} uzman</div>
-      <div class="rcard-score">${r.adj.toFixed(3)}</div>
+      <div class="rcard-score">${r.score.toFixed(3)}</div>
       <span class="rcard-pill">${l}</span>
-      <div class="rcard-meta">${r.fname}<br>S=${r.sc.toFixed(2)} P=${r.pc.toFixed(2)} D=${r.dc.toFixed(2)}</div>
+      <div class="rcard-meta">${r.fname}<br>SI_sev=${r.siSev.toFixed(3)} SI_prob=${r.siProb.toFixed(3)} SI_det=${r.siDet.toFixed(3)}</div>
     </div>`;
   }).join('')+'</div>';
   rt.innerHTML=rs.map(r=>{
-    const c=rCls(r.adj),l=rLbl(r.adj);
+    const c=rCls(r.score),l=rLbl(r.score);
     const colors={neg:'#22c55e',low:'#86efac',mod:'#f59e0b',high:'#fb923c',crit:'#ef4444'};
     return`<tr>
       <td>${r.fid}<br><span style="color:var(--text3);font-size:9px">${r.fname}</span></td>
-      <td>${r.sc.toFixed(3)}</td><td>${r.pc.toFixed(3)}</td><td>${r.dc.toFixed(3)}</td>
-      <td>${r.raw.toFixed(4)}</td>
-      <td style="color:${colors[c]}">${r.adj.toFixed(4)}</td>
+      <td>${r.siSev.toFixed(3)}</td><td>${r.siProb.toFixed(3)}</td><td>${r.siDet.toFixed(3)}</td>
+      <td>${r.ciSev.toFixed(3)} / ${r.ciProb.toFixed(3)}</td>
+      <td style="color:${colors[c]}">${r.score.toFixed(4)}</td>
       <td><span style="font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;background:rgba(255,255,255,.05);color:${colors[c]}">${l}</span></td>
     </tr>`;
   }).join('');
@@ -860,17 +1051,16 @@ function renderSteps(){
   const ab=document.getElementById('adim-body');
   if(!fid||!DB[fid]){ab.innerHTML='<div class="empty-state">veri girilmemiş</div>';return;}
   const r=computeFunc(fid);if(!r){ab.innerHTML='<div class="empty-state">—</div>';return;}
-  const topAct=Object.entries(r.act).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([l,s])=>`${l}:${s.toFixed(2)}`).join('  ·  ');
-  const af=(1-r.dc*.30).toFixed(3);
-  const barColor=r.adj<.4?'#22c55e':r.adj<.6?'#f59e0b':r.adj<.8?'#fb923c':'#ef4444';
+  const topAct=Object.entries(r.activated).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([l,s])=>`${l}:${s.toFixed(2)}`).join('  ·  ');
+  const barColor=r.score<.4?'#22c55e':r.score<.6?'#f59e0b':r.score<.8?'#fb923c':'#ef4444';
   ab.innerHTML=`<div class="step-list">
     <div class="step-row">
       <div class="step-icon" style="background:rgba(59,130,246,.1);color:#60a5fa">Z</div>
       <div class="step-content">
         <h4>Adım 1 — Z-Sayısı dönüşümü <span style="font-size:10px;color:var(--text3)">[Kang et al., 2012]</span></h4>
-        <p style="margin-bottom:4px">${r.steps.map(s=>`${s.uid}: α=√${s.ws} → w=${s.ew}`).join('  ·  ')}</p>
+        <p style="margin-bottom:4px">${r.steps.map(s=>`${s.uid}: CI_sev=${s.ci_sev} SI_sev=${s.si_sev}`).join('  ·  ')}</p>
         <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#93c5fd;font-family:var(--mono)">
-          α = ∫ x·μ_R̃(x)dx / ∫ μ_R̃(x)dx &nbsp;→&nbsp; Z̃' : μ_Ã(x/√α) &nbsp;[Denklem 3.69–3.70]
+          α = centroid(R̃_mu) &nbsp;→&nbsp; √α ile A bileşeni ölçeklenir &nbsp;[Denklem 3.69–3.70]
         </div>
       </div>
       <div class="step-val" style="color:#60a5fa">${r.n} uzman</div>
@@ -878,11 +1068,10 @@ function renderSteps(){
     <div class="step-row">
       <div class="step-icon" style="background:rgba(167,139,250,.1);color:#c4b5fd">D</div>
       <div class="step-content">
-        <h4>Adım 2 — DFS agregasyonu <span style="font-size:10px;color:var(--text3)">[Cebi et al., 2023 — Def. 3.5]</span></h4>
-        <p style="margin-bottom:4px">Şiddet agg: (${r.aS.map(v=>v.toFixed(3))})  ·  Olasılık agg: (${r.aP.map(v=>v.toFixed(3))})</p>
+        <h4>Adım 2 — DWGM Agregasyonu <span style="font-size:10px;color:var(--text3)">[Cebi et al., 2023 — Denklem 13]</span></h4>
+        <p style="margin-bottom:4px">Şiddet O_mu_b=${r.aggSev.O_mu[1].toFixed(3)} O_vt_b=${r.aggSev.O_vt[1].toFixed(3)}  ·  Olasılık O_mu_b=${r.aggProb.O_mu[1].toFixed(3)} O_vt_b=${r.aggProb.O_vt[1].toFixed(3)}</p>
         <div style="background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#c4b5fd;font-family:var(--mono)">
-          DWGM(α̃₁…α̃ₙ) = α̃₁^λ₁ ⊗ … ⊗ α̃ₙ^λₙ &nbsp;[Denklem 3.48]<br>
-          O: (∏aᵢ^λᵢ, 1−∏(1−bᵢ)^λᵢ) &nbsp;·&nbsp; P: (∏cᵢ / Σcᵢⁿ⁻¹λᵢ(1−cᵢ)+∏cᵢ, Σλᵢdᵢ / 1+Σ(λᵢdᵢ−dᵢ/n))
+          O_mu=∏aᵢ^λᵢ &nbsp;·&nbsp; O_vt=1−∏(1−bᵢ)^λᵢ &nbsp;·&nbsp; P_mu=∏cᵢ/(Σcᵢⁿ⁻¹λᵢ(1−cᵢ)+∏cᵢ)
         </div>
       </div>
       <div class="step-val" style="color:#c4b5fd">DWGM ✓</div>
@@ -890,11 +1079,11 @@ function renderSteps(){
     <div class="step-row">
       <div class="step-icon" style="background:rgba(45,212,191,.1);color:#5eead4">I</div>
       <div class="step-content">
-        <h4>Adım 3 — Tutarlılık & Skor İndeksi <span style="font-size:10px;color:var(--text3)">[Cebi et al., 2023 — Def. 3.6–3.7]</span></h4>
-        <p style="margin-bottom:4px">Şiddet crisp: ${r.sc.toFixed(4)} &nbsp;·&nbsp; Olasılık crisp: ${r.pc.toFixed(4)}</p>
+        <h4>Adım 3 — CI ve SI <span style="font-size:10px;color:var(--text3)">[Cebi et al., 2023 — Denklem 14-15]</span></h4>
+        <p style="margin-bottom:4px">CI_sev=${r.ciSev.toFixed(4)} → SI_sev=${r.siSev.toFixed(4)} &nbsp;·&nbsp; CI_prob=${r.ciProb.toFixed(4)} → SI_prob=${r.siProb.toFixed(4)} &nbsp;·&nbsp; SI_det=${r.siDet.toFixed(4)}</p>
         <div style="background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#5eead4;font-family:var(--mono)">
-          CI(α̃) = 1 − √[(a−d)²+(b−c)²+(1−a−b)²+(1−c−d)²] / 2 &nbsp;[Denklem 3.50]<br>
-          SI(α̃) = (a+b−c+d)·CI(α̃) / (2k) &nbsp;&nbsp;k = 0.68 &nbsp;[Denklem 3.51]
+          CI(α̃) = 1 − √[(a−d)²+(b−c)²+(1−a−b)²+(1−c−d)²] / 2 &nbsp;[Denklem 14]<br>
+          SI(α̃) = (a+b−c+d)·CI / 2k &nbsp;k=0.68 &nbsp;[Denklem 15]
         </div>
       </div>
       <div class="step-val" style="color:#5eead4">SI → FIS</div>
@@ -902,28 +1091,28 @@ function renderSteps(){
     <div class="step-row">
       <div class="step-icon" style="background:rgba(251,146,60,.1);color:#fdba74">F</div>
       <div class="step-content">
-        <h4>Adım 4 — Mamdani FIS <span style="font-size:10px;color:var(--text3)">[kural tabanı: 25 kural]</span></h4>
+        <h4>Adım 4 — Mamdani FIS 3D <span style="font-size:10px;color:var(--text3)">[125 kural · ICAO DOC 9859]</span></h4>
         <p style="margin-bottom:4px">Aktif kurallar: ${topAct}</p>
         <div style="background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#fdba74;font-family:var(--mono)">
-          Fuzzification → Kural aktivasyonu (min) → Agregasyon (max) → Centroid defuzz.<br>
-          risk* = Σ(x·μ_agg(x)) / Σμ_agg(x)
+          3 girdi: SI_sev=${r.siSev.toFixed(3)}, SI_prob=${r.siProb.toFixed(3)}, SI_det=${r.siDet.toFixed(3)}<br>
+          Fuzzification → min aktivasyon → max agregasyon → centroid defuzz.
         </div>
-        <div class="pbar" style="margin-top:8px"><div class="pbar-fill" style="width:${(r.raw*100).toFixed(1)}%;background:#3b82f6"></div></div>
+        <div class="pbar" style="margin-top:8px"><div class="pbar-fill" style="width:${(r.score*100).toFixed(1)}%;background:#3b82f6"></div></div>
       </div>
-      <div class="step-val" style="color:#fdba74">${r.raw.toFixed(4)}</div>
+      <div class="step-val" style="color:#fdba74">${r.score.toFixed(4)}</div>
     </div>
     <div class="step-row">
       <div class="step-icon" style="background:rgba(34,197,94,.1);color:#86efac">R</div>
       <div class="step-content">
-        <h4>Adım 5 — Detectability düzeltmesi & Risk sınıfı</h4>
-        <p style="margin-bottom:4px">D(crisp)=${r.dc.toFixed(3)} &nbsp;→&nbsp; ${r.raw.toFixed(4)} × ${af} = ${r.adj.toFixed(4)}</p>
+        <h4>Adım 5 — Risk Sınıflandırması</h4>
+        <p style="margin-bottom:4px">Risk Skoru: ${r.score.toFixed(4)}</p>
         <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#86efac;font-family:var(--mono)">
-          risk_adj = risk* × (1 − det_crisp × 0.30)<br>
+          Detectability 3D FIS'e dahil · ICAO alt sınır: Catastrophic≥Moderate, Hazardous≥Low<br>
           Sınıf: &lt;0.20 Negligible · &lt;0.40 Low · &lt;0.60 Moderate · &lt;0.80 High · ≥0.80 Critical
         </div>
-        <div class="pbar" style="margin-top:8px"><div class="pbar-fill" style="width:${(r.adj*100).toFixed(1)}%;background:${barColor}"></div></div>
+        <div class="pbar" style="margin-top:8px"><div class="pbar-fill" style="width:${(r.score*100).toFixed(1)}%;background:${barColor}"></div></div>
       </div>
-      <div class="step-val" style="color:${barColor}">${r.adj.toFixed(4)}<br><span style="font-size:11px;font-weight:500">${rLbl(r.adj)}</span></div>
+      <div class="step-val" style="color:${barColor}">${r.score.toFixed(4)}<br><span style="font-size:11px;font-weight:500">${rLbl(r.score)}</span></div>
     </div>
   </div>`;
 }
