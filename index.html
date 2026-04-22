@@ -328,142 +328,12 @@ tr:hover td { background: rgba(255,255,255,.01); }
       <span class="status-dot"></span>
       <span id="save-txt">kaydedildi</span>
     </span>
-    <button class="btn-ghost" id="wf-btn" onclick="toggleWorkflow()">iş akışı ↓</button>
     <button class="btn-ghost" onclick="exportJSON()">JSON indir</button>
     <button class="btn-ghost danger" onclick="clearAll()">sıfırla</button>
   </div>
 </div>
 
-<!-- İş Akışı Diyagramı -->
-<div id="workflow-section" style="padding:0 24px 0;overflow:hidden;max-height:0;transition:max-height .4s ease,padding .4s ease">
-<div style="margin:16px 0;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden">
-  <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-    <span style="font-family:var(--mono);font-size:13px;color:var(--text)">model iş akışı</span>
-    <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Tüysüz & Kahraman (2024) · Cebi et al. (2023) uyarlaması</span>
-  </div>
-  <div style="padding:20px;overflow-x:auto">
-    <svg viewBox="0 0 820 380" style="width:100%;min-width:640px;display:block" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-          <path d="M0,0 L8,3 L0,6 Z" fill="#3d5166"/>
-        </marker>
-        <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-          <path d="M0,0 L8,3 L0,6 Z" fill="#3b82f6"/>
-        </marker>
-      </defs>
 
-      <!-- Aşama etiketleri -->
-      <rect x="0" y="0" width="120" height="380" fill="#111720" rx="0"/>
-      <text x="14" y="95" fill="#3d5166" font-size="10" font-family="monospace" transform="rotate(-90,14,95)">sistematik tanımlama</text>
-      <text x="14" y="235" fill="#3d5166" font-size="10" font-family="monospace" transform="rotate(-90,14,235)">veri modelleme</text>
-      <text x="14" y="345" fill="#3d5166" font-size="10" font-family="monospace" transform="rotate(-90,14,345)">çıkarım ve sınıflandırma</text>
-      <line x1="120" y1="0" x2="120" y2="380" stroke="#1e2d3d" stroke-width="1"/>
-      <line x1="120" y1="150" x2="820" y2="150" stroke="#1e2d3d" stroke-width="1" stroke-dasharray="4,4"/>
-      <line x1="120" y1="290" x2="820" y2="290" stroke="#1e2d3d" stroke-width="1" stroke-dasharray="4,4"/>
-
-      <!-- AŞAMA 1: Sistematik Tanımlama -->
-      <!-- Kutu 1: Sistem fonksiyonları -->
-      <rect x="135" y="20" width="145" height="52" rx="4" fill="#171f2b" stroke="#2a3f52" stroke-width="1"/>
-      <text x="207" y="43" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">sistem fonksiyonları</text>
-      <text x="207" y="58" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">ve bağlamın tanımı</text>
-
-      <!-- Kutu 2: FHA Uygulaması -->
-      <rect x="320" y="20" width="145" height="52" rx="4" fill="#171f2b" stroke="#2a3f52" stroke-width="1"/>
-      <text x="392" y="43" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">fonksiyonel tehlike</text>
-      <text x="392" y="58" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">analizi (FHA)</text>
-
-      <!-- Kutu 3: Risk Parametreleri -->
-      <rect x="600" y="20" width="145" height="52" rx="4" fill="#171f2b" stroke="#3b82f6" stroke-width="1"/>
-      <text x="672" y="43" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">risk parametrelerinin</text>
-      <text x="672" y="58" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">belirlenmesi</text>
-
-      <!-- Ok 1->2 -->
-      <line x1="280" y1="46" x2="318" y2="46" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-      <!-- Ok 2->3 -->
-      <line x1="465" y1="46" x2="598" y2="46" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-
-      <!-- AŞAMA 2: Veri Modelleme -->
-      <!-- Kutu 4: Uzman Değerlendirmeleri -->
-      <rect x="135" y="170" width="145" height="52" rx="4" fill="#171f2b" stroke="#2a3f52" stroke-width="1"/>
-      <text x="207" y="193" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">uzman</text>
-      <text x="207" y="208" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">değerlendirmeleri</text>
-
-      <!-- Kutu 5: Z-Sayıları (Güven) -->
-      <rect x="320" y="158" width="145" height="52" rx="4" fill="#171f2b" stroke="#a78bfa" stroke-width="1"/>
-      <text x="392" y="178" text-anchor="middle" fill="#a78bfa" font-size="11" font-family="monospace">Z-sayıları</text>
-      <text x="392" y="193" text-anchor="middle" fill="#a78bfa" font-size="11" font-family="monospace">(güven modelleme)</text>
-      <text x="392" y="204" text-anchor="middle" fill="#534AB7" font-size="9" font-family="monospace">B bileşeni → α = centroid(R̃)</text>
-
-      <!-- Kutu 6: DFS -->
-      <rect x="320" y="222" width="145" height="52" rx="4" fill="#171f2b" stroke="#2dd4bf" stroke-width="1"/>
-      <text x="392" y="242" text-anchor="middle" fill="#2dd4bf" font-size="11" font-family="monospace">DFS yapısı</text>
-      <text x="392" y="257" text-anchor="middle" fill="#2dd4bf" font-size="11" font-family="monospace">(O-iyimser, P-kötümser)</text>
-      <text x="392" y="268" text-anchor="middle" fill="#0F6E56" font-size="9" font-family="monospace">DWGM operatörü</text>
-
-      <!-- Kutu 7: CI Ağırlıklandırma -->
-      <rect x="510" y="222" width="145" height="52" rx="4" fill="#171f2b" stroke="#f59e0b" stroke-width="1"/>
-      <text x="582" y="242" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="monospace">tutarlılık düzeyine</text>
-      <text x="582" y="257" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="monospace">göre ağırlıklandırma</text>
-      <text x="582" y="268" text-anchor="middle" fill="#854F0B" font-size="9" font-family="monospace">CI indeksi · SI skoru</text>
-
-      <!-- Kutu 8: Z-DFS Entegrasyon -->
-      <rect x="690" y="190" width="115" height="52" rx="4" fill="#171f2b" stroke="#3b82f6" stroke-width="1.5"/>
-      <text x="747" y="213" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">Z-DFS</text>
-      <text x="747" y="228" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">entegrasyonu</text>
-
-      <!-- Oklar Aşama 2 -->
-      <!-- 4->5 -->
-      <line x1="280" y1="184" x2="318" y2="184" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-      <!-- 4->6 -->
-      <line x1="280" y1="210" x2="318" y2="242" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-      <!-- 5->8 -->
-      <line x1="465" y1="184" x2="688" y2="210" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-      <!-- 6->7 -->
-      <line x1="465" y1="248" x2="508" y2="248" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-      <!-- 7->8 -->
-      <line x1="655" y1="248" x2="688" y2="225" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-
-      <!-- Aşama 1 -> Aşama 2 (Risk Param -> Uzman) -->
-      <path d="M 672 72 L 672 100 L 207 100 L 207 168" fill="none" stroke="#3d5166" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
-
-      <!-- AŞAMA 3: Çıkarım -->
-      <!-- Kutu 9: Normalize Z-DFS -->
-      <rect x="135" y="305" width="130" height="52" rx="4" fill="#171f2b" stroke="#2a3f52" stroke-width="1"/>
-      <text x="200" y="325" text-anchor="middle" fill="#7a92a8" font-size="10" font-family="monospace">normalize Z-DFS</text>
-      <text x="200" y="340" text-anchor="middle" fill="#7a92a8" font-size="10" font-family="monospace">skorları (FIS girdi)</text>
-
-      <!-- Kutu 10: FIS Kural Tabanı -->
-      <rect x="285" y="305" width="110" height="52" rx="4" fill="#171f2b" stroke="#ef4444" stroke-width="1"/>
-      <text x="340" y="325" text-anchor="middle" fill="#ef4444" font-size="11" font-family="monospace">FIS kural</text>
-      <text x="340" y="340" text-anchor="middle" fill="#ef4444" font-size="11" font-family="monospace">tabanı</text>
-
-      <!-- Kutu 11: Durulaştırma -->
-      <rect x="415" y="305" width="110" height="52" rx="4" fill="#171f2b" stroke="#f59e0b" stroke-width="1"/>
-      <text x="470" y="325" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="monospace">durulaştırma</text>
-      <text x="470" y="340" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="monospace">(Mamdani)</text>
-
-      <!-- Kutu 12: Niteliksel Risk -->
-      <rect x="545" y="305" width="115" height="52" rx="4" fill="#171f2b" stroke="#22c55e" stroke-width="1"/>
-      <text x="602" y="325" text-anchor="middle" fill="#22c55e" font-size="10" font-family="monospace">niteliksel risk</text>
-      <text x="602" y="340" text-anchor="middle" fill="#22c55e" font-size="10" font-family="monospace">sınıflandırması</text>
-
-      <!-- Kutu 13: Doğrulama -->
-      <rect x="680" y="305" width="115" height="52" rx="4" fill="#171f2b" stroke="#3b82f6" stroke-width="1.5"/>
-      <text x="737" y="325" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">model</text>
-      <text x="737" y="340" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">doğrulama</text>
-
-      <!-- Oklar Aşama 3 -->
-      <line x1="265" y1="331" x2="283" y2="331" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="395" y1="331" x2="413" y2="331" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="525" y1="331" x2="543" y2="331" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="660" y1="331" x2="678" y2="331" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
-
-      <!-- Z-DFS -> Normalize Z-DFS -->
-      <path d="M 747 242 L 747 270 L 200 270 L 200 303" fill="none" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr2)"/>
-    </svg>
-  </div>
-</div>
-</div>
 
 <div class="layout">
   <div class="sidebar">
@@ -744,15 +614,6 @@ const RULES={Negligible:{Frequent:"Moderate",Occasional:"Low",Remote:"Low",Impro
 const OUTT={Negligible:[0,0,.2],Low:[.1,.25,.4],Moderate:[.3,.5,.7],High:[.6,.75,.9],Critical:[.8,1,1]};
 const EXPERTS=["U1","U2","U3","U4","U5"];
 
-let wfOpen=false;
-function toggleWorkflow(){
-  wfOpen=!wfOpen;
-  const s=document.getElementById('workflow-section');
-  const b=document.getElementById('wf-btn');
-  s.style.maxHeight=wfOpen?'500px':'0';
-  s.style.padding=wfOpen?'0 24px':'0 24px 0';
-  b.textContent=wfOpen?'iş akışı ↑':'iş akışı ↓';
-}
 
 let DB={}, activeFunc=null, activeExp="U1", dirty=false;
 
