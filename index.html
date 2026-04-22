@@ -379,6 +379,7 @@ tr:hover td { background: rgba(255,255,255,.01); }
       <button class="ntab active" onclick="switchTab('giris')">veri girişi</button>
       <button class="ntab" onclick="switchTab('sonuc')">sonuçlar</button>
       <button class="ntab" onclick="switchTab('adim')">adım adım</button>
+      <button class="ntab" onclick="switchTab('fis')">FIS kuralları</button>
       <button class="ntab" onclick="switchTab('model')">model akışı</button>
     </div>
 
@@ -427,6 +428,82 @@ tr:hover td { background: rgba(255,255,255,.01); }
         </div>
         <div class="panel-body" id="adim-body">
           <div class="empty-state">fonksiyon seçin</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-fis" class="section">
+      <div class="panel">
+        <div class="panel-hdr">
+          <span class="panel-title">FIS kural tabanı — 3 boyutlu</span>
+          <span class="panel-sub">125 kural · ICAO DOC 9859 + Detectability · Kaynak: Cebi et al. (2023)</span>
+        </div>
+        <div class="panel-body" style="padding:16px">
+
+          <!-- Filtre satırı -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+            <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">filtre:</span>
+            <select id="fis-sev" onchange="renderFIS()" style="font-family:var(--mono);font-size:11px;padding:4px 8px;background:var(--bg);border:1px solid var(--border2);color:var(--text2);border-radius:4px">
+              <option value="">tüm şiddet</option>
+              <option>Negligible</option><option>Minor</option><option>Major</option>
+              <option>Hazardous</option><option>Catastrophic</option>
+            </select>
+            <select id="fis-prob" onchange="renderFIS()" style="font-family:var(--mono);font-size:11px;padding:4px 8px;background:var(--bg);border:1px solid var(--border2);color:var(--text2);border-radius:4px">
+              <option value="">tüm olasılık</option>
+              <option>Extremely Improbable</option><option>Improbable</option><option>Remote</option>
+              <option>Occasional</option><option>Frequent</option>
+            </select>
+            <select id="fis-det" onchange="renderFIS()" style="font-family:var(--mono);font-size:11px;padding:4px 8px;background:var(--bg);border:1px solid var(--border2);color:var(--text2);border-radius:4px">
+              <option value="">tüm tespit</option>
+              <option>Almost Impossible</option><option>Low</option><option>Moderate</option>
+              <option>High</option><option>Almost Certain</option>
+            </select>
+            <select id="fis-risk" onchange="renderFIS()" style="font-family:var(--mono);font-size:11px;padding:4px 8px;background:var(--bg);border:1px solid var(--border2);color:var(--text2);border-radius:4px">
+              <option value="">tüm sonuçlar</option>
+              <option>Negligible</option><option>Low</option><option>Moderate</option>
+              <option>High</option><option>Critical</option>
+            </select>
+            <span id="fis-count" style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto"></span>
+          </div>
+
+          <!-- Renk açıklaması -->
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px">
+            ${[['Negligible','#22c55e','#052e16'],['Low','#86efac','#14532d'],['Moderate','#fcd34d','#451a03'],['High','#fb923c','#431407'],['Critical','#ef4444','#450a0a']].map(([l,fg,bg])=>`
+            <div style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px">
+              <span style="width:10px;height:10px;border-radius:2px;background:${bg};border:1px solid ${fg};display:inline-block"></span>
+              <span style="color:${fg}">${l}</span>
+            </div>`).join('')}
+            <div style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:auto">
+              ⚠ Alt sınır kısıtı uygulanmış (ICAO intolerable prensibi)
+            </div>
+          </div>
+
+          <!-- Tablo -->
+          <div class="tbl-wrap" id="fis-table-wrap">
+            <table id="fis-table">
+              <thead>
+                <tr>
+                  <th style="width:30px">#</th>
+                  <th>Şiddet</th>
+                  <th>Olasılık</th>
+                  <th>Tespit Edilebilirlik</th>
+                  <th>2D Baz Risk</th>
+                  <th>Det. Offset</th>
+                  <th>Sonuç Risk</th>
+                  <th>Alt Sınır?</th>
+                </tr>
+              </thead>
+              <tbody id="fis-tbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Not -->
+          <div style="margin-top:12px;padding:10px 14px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.7">
+            <b style="color:var(--text2)">Kural üretim mantığı:</b> 2D baz kural (ICAO DOC 9859 Tablo 2-1) + Detectability offset
+            (Almost Impossible/Low: +1 · Moderate: 0 · High/Almost Certain: −1).<br>
+            <b style="color:var(--text2)">Alt sınır kısıtı:</b> Catastrophic şiddet → risk ≥ Moderate &nbsp;·&nbsp;
+            Hazardous şiddet → risk ≥ Low &nbsp;(ICAO intolerable prensibi, DOC 9859 4th ed.)
+          </div>
         </div>
       </div>
     </div>
@@ -1057,10 +1134,17 @@ function renderSteps(){
     <div class="step-row">
       <div class="step-icon" style="background:rgba(59,130,246,.1);color:#60a5fa">Z</div>
       <div class="step-content">
-        <h4>Adım 1 — Z-Sayısı dönüşümü <span style="font-size:10px;color:var(--text3)">[Kang et al., 2012]</span></h4>
-        <p style="margin-bottom:4px">${r.steps.map(s=>`${s.uid}: CI_sev=${s.ci_sev} SI_sev=${s.si_sev}`).join('  ·  ')}</p>
-        <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#93c5fd;font-family:var(--mono)">
-          α = centroid(R̃_mu) &nbsp;→&nbsp; √α ile A bileşeni ölçeklenir &nbsp;[Denklem 3.69–3.70]
+        <h4>Adım 1 — Z-Sayısı dönüşümü & DFS oluşumu <span style="font-size:10px;color:var(--text3)">[Kang et al., 2012]</span></h4>
+        <div style="margin-bottom:6px">
+          ${r.steps.map(s=>`<div style="display:flex;gap:12px;font-family:var(--mono);font-size:10px;color:var(--text2);padding:3px 0;border-bottom:1px solid var(--border)">
+            <span style="color:var(--accent);min-width:24px">${s.uid}</span>
+            <span>CI_sev=<b style="color:#c4b5fd">${s.ci_sev}</b> SI_sev=<b style="color:#5eead4">${s.si_sev}</b></span>
+            <span>CI_prob=<b style="color:#c4b5fd">${s.ci_prob}</b> SI_prob=<b style="color:#5eead4">${s.si_prob}</b></span>
+            <span>CI_det=<b style="color:#c4b5fd">${s.ci_det}</b> SI_det=<b style="color:#5eead4">${s.si_det}</b></span>
+          </div>`).join('')}
+        </div>
+        <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:4px;padding:6px 10px;font-size:11px;color:#93c5fd;font-family:var(--mono)">
+          α = centroid(R̃_mu) &nbsp;→&nbsp; √α ile A bileşeni ölçeklenir &nbsp;[Kang et al., 2012]
         </div>
       </div>
       <div class="step-val" style="color:#60a5fa">${r.n} uzman</div>
@@ -1118,12 +1202,75 @@ function renderSteps(){
 }
 
 function switchTab(id){
-  ['giris','sonuc','adim','model'].forEach((s,i)=>{
+  ['giris','sonuc','adim','fis','model'].forEach((s,i)=>{
     document.getElementById('sec-'+s).className='section'+(s===id?' active':'');
     document.querySelectorAll('.ntab')[i].className='ntab'+(s===id?' active':'');
   });
   if(id==='sonuc')refreshResults();
   if(id==='adim')renderSteps();
+  if(id==='fis')renderFIS();
+}
+
+function renderFIS(){
+  const sevF =document.getElementById('fis-sev')?.value||'';
+  const probF=document.getElementById('fis-prob')?.value||'';
+  const detF =document.getElementById('fis-det')?.value||'';
+  const riskF=document.getElementById('fis-risk')?.value||'';
+
+  const RISK_COLORS={
+    Negligible:{fg:'#22c55e',bg:'rgba(34,197,94,.12)'},
+    Low:       {fg:'#86efac',bg:'rgba(134,239,172,.1)'},
+    Moderate:  {fg:'#fcd34d',bg:'rgba(252,211,77,.1)'},
+    High:      {fg:'#fb923c',bg:'rgba(251,146,60,.12)'},
+    Critical:  {fg:'#ef4444',bg:'rgba(239,68,68,.15)'},
+  };
+  const DET_COLORS={
+    'Almost Impossible':'rgba(239,68,68,.15)',
+    'Low':              'rgba(251,146,60,.1)',
+    'Moderate':         'rgba(252,211,77,.08)',
+    'High':             'rgba(134,239,172,.1)',
+    'Almost Certain':   'rgba(34,197,94,.12)',
+  };
+
+  const BASE={
+    Negligible:  ['Negligible','Negligible','Low',     'Low',     'Low'     ],
+    Minor:       ['Negligible','Low',       'Low',     'Moderate','Moderate'],
+    Major:       ['Low',       'Low',       'Moderate','High',    'High'    ],
+    Hazardous:   ['Low',       'Moderate',  'High',    'High',    'Critical'],
+    Catastrophic:['Moderate',  'High',      'High',    'Critical','Critical'],
+  };
+
+  let rows='', no=1, count=0;
+  SEV_LVLS.forEach(sev=>{
+    PROB_LVLS.forEach((prob,ip)=>{
+      DET_LVLS.forEach(det=>{
+        const base=BASE[sev][ip];
+        const out=FIS_RULES_3D[`${sev}|${prob}|${det}`];
+        const offset=DET_OFFSET[det];
+        const floored=(RISK_FLOOR[sev]&&RISK_LVLS.indexOf(out)===RISK_LVLS.indexOf(RISK_FLOOR[sev])
+                       &&RISK_LVLS.indexOf(base)+offset<RISK_LVLS.indexOf(RISK_FLOOR[sev]));
+
+        if((sevF&&sev!==sevF)||(probF&&prob!==probF)||(detF&&det!==detF)||(riskF&&out!==riskF)){no++;return;}
+
+        const rc=RISK_COLORS[out];
+        const dc=DET_COLORS[det];
+        rows+=`<tr style="font-size:11px">
+          <td style="color:var(--text3);font-family:var(--mono)">${no}</td>
+          <td style="font-family:var(--mono);color:#60a5fa;font-weight:500">${sev}</td>
+          <td style="font-family:var(--mono);color:var(--text2)">${prob}</td>
+          <td style="font-family:var(--mono);background:${dc};color:var(--text)">${det}</td>
+          <td style="font-family:var(--mono);color:var(--text3)">${base}</td>
+          <td style="font-family:var(--mono);color:${offset>0?'#ef4444':offset<0?'#22c55e':'var(--text3)'};text-align:center">${offset>0?'+'+offset:offset}</td>
+          <td style="background:${rc.bg};color:${rc.fg};font-family:var(--mono);font-weight:600;text-align:center">${out}</td>
+          <td style="text-align:center;font-size:10px;color:${floored?'#fb923c':'var(--text3)'}">${floored?'⚠ '+RISK_FLOOR[sev]:'—'}</td>
+        </tr>`;
+        no++;count++;
+      });
+    });
+  });
+
+  document.getElementById('fis-tbody').innerHTML=rows||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:2rem">— eşleşen kural yok —</td></tr>';
+  document.getElementById('fis-count').textContent=count+' kural gösteriliyor';
 }
 
 function loadDemo(){
