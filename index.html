@@ -33,7 +33,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
 }
 
@@ -45,16 +45,16 @@ body {
   border-bottom: 1px solid var(--border);
   padding: 0 24px;
   display: flex; align-items: center; justify-content: space-between;
-  height: 52px;
+  height: 58px;
 }
 .topbar-brand { display: flex; align-items: center; gap: 10px; }
 .brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
-.brand-name { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--text); letter-spacing: .5px; }
-.brand-sub { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+.brand-name { font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--text); letter-spacing: .5px; }
+.brand-sub { font-size: 13px; color: var(--text3); font-family: var(--mono); }
 .topbar-right { display: flex; align-items: center; gap: 10px; }
 .status-pill {
-  font-family: var(--mono); font-size: 11px;
+  font-family: var(--mono); font-size: 13px;
   padding: 3px 10px; border-radius: 20px;
   border: 1px solid; display: flex; align-items: center; gap: 5px;
 }
@@ -64,7 +64,7 @@ body {
 .saved .status-dot { background: var(--green); }
 .dirty .status-dot { background: var(--amber); }
 .btn-ghost {
-  font-family: var(--mono); font-size: 11px;
+  font-family: var(--mono); font-size: 13px;
   padding: 4px 12px; border-radius: 4px;
   border: 1px solid var(--border2); background: transparent;
   color: var(--text2); cursor: pointer; transition: all .15s;
@@ -89,7 +89,7 @@ body {
 .sidebar::-webkit-scrollbar-thumb { background: var(--border2); }
 .sidebar-section { padding: 16px 12px 8px; }
 .sidebar-label {
-  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
   letter-spacing: 1.5px; text-transform: uppercase;
   color: var(--text3); padding: 0 8px; margin-bottom: 6px;
 }
@@ -101,8 +101,8 @@ body {
 }
 .func-item:hover { background: var(--surface2); }
 .func-item.active { background: rgba(59,130,246,.08); border-color: rgba(59,130,246,.2); }
-.fid { font-family: var(--mono); font-size: 10px; color: var(--accent); width: 28px; flex-shrink: 0; }
-.fname { font-size: 11px; color: var(--text2); flex: 1; line-height: 1.3; }
+.fid { font-family: var(--mono); font-size: 14px; color: var(--accent); width: 28px; flex-shrink: 0; }
+.fname { font-size: 13px; color: var(--text2); flex: 1; line-height: 1.3; }
 .func-item.active .fname { color: var(--text); }
 .fdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .fdot.empty { background: var(--border2); }
@@ -112,14 +112,14 @@ body {
 .sidebar-divider { height: 1px; background: var(--border); margin: 8px 12px; }
 
 .storage-block { padding: 12px 14px; }
-.storage-title { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+.storage-title { font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
 .storage-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
-.storage-key { font-size: 11px; color: var(--text2); }
-.storage-val { font-family: var(--mono); font-size: 11px; color: var(--text); }
-.storage-note { font-size: 10px; color: var(--text3); line-height: 1.5; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
+.storage-key { font-size: 13px; color: var(--text2); }
+.storage-val { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.storage-note { font-size: 14px; color: var(--text3); line-height: 1.5; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
 .btn-export {
   width: 100%; margin-top: 10px;
-  font-family: var(--mono); font-size: 11px;
+  font-family: var(--mono); font-size: 13px;
   padding: 6px; border-radius: 4px;
   border: 1px solid var(--border2); background: transparent;
   color: var(--text2); cursor: pointer; transition: all .15s;
@@ -133,7 +133,7 @@ body {
   border-bottom: 1px solid var(--border); padding-bottom: 0;
 }
 .ntab {
-  font-family: var(--mono); font-size: 12px;
+  font-family: var(--mono); font-size: 14px;
   padding: 8px 16px; background: transparent;
   border: none; color: var(--text3); cursor: pointer;
   border-bottom: 2px solid transparent; transition: all .15s;
@@ -154,13 +154,13 @@ body {
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
 }
-.panel-title { font-family: var(--mono); font-size: 12px; color: var(--text); font-weight: 500; }
-.panel-sub { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.panel-title { font-family: var(--mono); font-size: 14px; color: var(--text); font-weight: 500; }
+.panel-sub { font-family: var(--mono); font-size: 14px; color: var(--text3); }
 .panel-body { padding: 16px; }
 
 .expert-bar { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
 .etab {
-  font-family: var(--mono); font-size: 11px;
+  font-family: var(--mono); font-size: 13px;
   padding: 5px 14px; border-radius: 4px;
   border: 1px solid var(--border2); background: transparent;
   color: var(--text3); cursor: pointer; position: relative; transition: all .15s;
@@ -174,7 +174,7 @@ body {
 
 .dim-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .dim-block { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-.dim-hdr { padding: 8px 12px; font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .5px; }
+.dim-hdr { padding: 8px 12px; font-family: var(--mono); font-size: 14px; font-weight: 500; letter-spacing: .5px; }
 .dim-sev .dim-hdr { background: rgba(239,68,68,.08); border-bottom: 1px solid rgba(239,68,68,.2); color: #fca5a5; }
 .dim-prob .dim-hdr { background: rgba(167,139,250,.08); border-bottom: 1px solid rgba(167,139,250,.2); color: #c4b5fd; }
 .dim-det .dim-hdr { background: rgba(45,212,191,.08); border-bottom: 1px solid rgba(45,212,191,.2); color: #99f6e4; }
@@ -182,7 +182,7 @@ body {
 .perspective { padding: 10px 12px; border-bottom: 1px solid var(--border); }
 .perspective:last-child { border-bottom: none; }
 .persp-lbl {
-  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
   letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px;
   display: flex; align-items: center; gap: 5px;
 }
@@ -193,9 +193,9 @@ body {
 
 .field { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
 .field:last-child { margin-bottom: 0; }
-.field label { font-size: 9px; color: var(--text3); font-family: var(--mono); letter-spacing: .5px; }
+.field label { font-size: 11px; color: var(--text3); font-family: var(--mono); letter-spacing: .5px; }
 .field select {
-  font-size: 11px; padding: 5px 7px;
+  font-size: 13px; padding: 5px 7px;
   border-radius: 4px; border: 1px solid var(--border2);
   background: var(--bg); color: var(--text);
   width: 100%; font-family: var(--sans); transition: border-color .15s;
@@ -209,14 +209,14 @@ body {
 
 .form-actions { display: flex; gap: 8px; margin-top: 16px; align-items: center; }
 .btn-save {
-  font-family: var(--mono); font-size: 12px;
+  font-family: var(--mono); font-size: 14px;
   padding: 8px 20px; border-radius: 4px;
   border: 1px solid var(--accent); background: rgba(59,130,246,.1);
   color: var(--accent); cursor: pointer; transition: all .15s;
 }
 .btn-save:hover { background: rgba(59,130,246,.2); }
 .btn-del {
-  font-family: var(--mono); font-size: 11px;
+  font-family: var(--mono); font-size: 13px;
   padding: 7px 14px; border-radius: 4px;
   border: 1px solid var(--border2); background: transparent;
   color: var(--text3); cursor: pointer; transition: all .15s;
@@ -224,7 +224,7 @@ body {
 .btn-del:hover { border-color: var(--red); color: var(--red); }
 
 .toast {
-  font-family: var(--mono); font-size: 11px;
+  font-family: var(--mono); font-size: 13px;
   padding: 4px 10px; border-radius: 4px; display: none;
 }
 .toast.show { display: inline-block; animation: fadein .2s; }
@@ -235,7 +235,7 @@ body {
 
 .empty-state {
   text-align: center; padding: 3rem; color: var(--text3);
-  font-family: var(--mono); font-size: 12px;
+  font-family: var(--mono); font-size: 14px;
 }
 
 /* ── Results ── */
@@ -247,10 +247,10 @@ body {
   cursor: default; transition: border-color .15s;
 }
 .rcard:hover { border-color: var(--border2); }
-.rcard-id { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-bottom: 4px; }
-.rcard-score { font-family: var(--mono); font-size: 26px; font-weight: 500; margin: 4px 0; }
-.rcard-pill { font-family: var(--mono); font-size: 9px; font-weight: 500; padding: 2px 8px; border-radius: 20px; display: inline-block; }
-.rcard-meta { font-size: 10px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
+.rcard-id { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.rcard-score { font-family: var(--mono); font-size: 30px; font-weight: 500; margin: 4px 0; }
+.rcard-pill { font-family: var(--mono); font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; display: inline-block; }
+.rcard-meta { font-size: 14px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
 .rcard.neg { border-left: 3px solid var(--green); }
 .rcard.neg .rcard-score { color: var(--green); }
 .rcard.neg .rcard-pill { background: rgba(34,197,94,.1); color: var(--green); }
@@ -277,12 +277,12 @@ body {
 .step-icon {
   width: 30px; height: 30px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
   flex-shrink: 0;
 }
 .step-content { flex: 1; }
-.step-content h4 { font-family: var(--mono); font-size: 11px; color: var(--text); margin-bottom: 3px; }
-.step-content p { font-family: var(--mono); font-size: 10px; color: var(--text3); line-height: 1.5; }
+.step-content h4 { font-family: var(--mono); font-size: 13px; color: var(--text); margin-bottom: 3px; }
+.step-content p { font-family: var(--mono); font-size: 14px; color: var(--text3); line-height: 1.5; }
 .step-val { font-family: var(--mono); font-size: 13px; font-weight: 500; text-align: right; white-space: nowrap; }
 .pbar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; }
 .pbar-fill { height: 100%; border-radius: 2px; transition: width .5s ease; }
@@ -290,10 +290,10 @@ body {
 /* ── Pipeline badge row ── */
 .pipeline-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
 .pip-badge {
-  font-family: var(--mono); font-size: 10px;
+  font-family: var(--mono); font-size: 14px;
   padding: 3px 10px; border-radius: 3px; border: 1px solid;
 }
-.pip-arrow { color: var(--text3); font-size: 11px; }
+.pip-arrow { color: var(--text3); font-size: 13px; }
 .pb1 { border-color: rgba(59,130,246,.4); background: rgba(59,130,246,.06); color: #93c5fd; }
 .pb2 { border-color: rgba(167,139,250,.4); background: rgba(167,139,250,.06); color: #c4b5fd; }
 .pb3 { border-color: rgba(45,212,191,.4); background: rgba(45,212,191,.06); color: #99f6e4; }
@@ -302,9 +302,9 @@ body {
 
 /* ── Table ── */
 .tbl-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th { text-align: left; padding: 8px 12px; font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); font-weight: 500; }
-td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 11px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; padding: 8px 12px; font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); border-bottom: 1px solid var(--border); font-weight: 500; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 13px; }
 tr:last-child td { border: none; }
 tr:hover td { background: rgba(255,255,255,.01); }
 
@@ -328,9 +328,141 @@ tr:hover td { background: rgba(255,255,255,.01); }
       <span class="status-dot"></span>
       <span id="save-txt">kaydedildi</span>
     </span>
+    <button class="btn-ghost" id="wf-btn" onclick="toggleWorkflow()">iş akışı ↓</button>
     <button class="btn-ghost" onclick="exportJSON()">JSON indir</button>
     <button class="btn-ghost danger" onclick="clearAll()">sıfırla</button>
   </div>
+</div>
+
+<!-- İş Akışı Diyagramı -->
+<div id="workflow-section" style="padding:0 24px 0;overflow:hidden;max-height:0;transition:max-height .4s ease,padding .4s ease">
+<div style="margin:16px 0;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+  <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <span style="font-family:var(--mono);font-size:13px;color:var(--text)">model iş akışı</span>
+    <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Tüysüz & Kahraman (2024) · Cebi et al. (2023) uyarlaması</span>
+  </div>
+  <div style="padding:20px;overflow-x:auto">
+    <svg viewBox="0 0 820 380" style="width:100%;min-width:640px;display:block" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#3d5166"/>
+        </marker>
+        <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#3b82f6"/>
+        </marker>
+      </defs>
+
+      <!-- Aşama etiketleri -->
+      <rect x="0" y="0" width="120" height="380" fill="#111720" rx="0"/>
+      <text x="14" y="95" fill="#3d5166" font-size="10" font-family="monospace" transform="rotate(-90,14,95)">sistematik tanımlama</text>
+      <text x="14" y="235" fill="#3d5166" font-size="10" font-family="monospace" transform="rotate(-90,14,235)">veri modelleme</text>
+      <text x="14" y="345" fill="#3d5166" font-size="10" font-family="monospace" transform="rotate(-90,14,345)">çıkarım ve sınıflandırma</text>
+      <line x1="120" y1="0" x2="120" y2="380" stroke="#1e2d3d" stroke-width="1"/>
+      <line x1="120" y1="150" x2="820" y2="150" stroke="#1e2d3d" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="120" y1="290" x2="820" y2="290" stroke="#1e2d3d" stroke-width="1" stroke-dasharray="4,4"/>
+
+      <!-- AŞAMA 1: Sistematik Tanımlama -->
+      <!-- Kutu 1: Sistem fonksiyonları -->
+      <rect x="135" y="20" width="145" height="52" rx="4" fill="#171f2b" stroke="#2a3f52" stroke-width="1"/>
+      <text x="207" y="43" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">sistem fonksiyonları</text>
+      <text x="207" y="58" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">ve bağlamın tanımı</text>
+
+      <!-- Kutu 2: FHA Uygulaması -->
+      <rect x="320" y="20" width="145" height="52" rx="4" fill="#171f2b" stroke="#2a3f52" stroke-width="1"/>
+      <text x="392" y="43" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">fonksiyonel tehlike</text>
+      <text x="392" y="58" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">analizi (FHA)</text>
+
+      <!-- Kutu 3: Risk Parametreleri -->
+      <rect x="600" y="20" width="145" height="52" rx="4" fill="#171f2b" stroke="#3b82f6" stroke-width="1"/>
+      <text x="672" y="43" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">risk parametrelerinin</text>
+      <text x="672" y="58" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">belirlenmesi</text>
+
+      <!-- Ok 1->2 -->
+      <line x1="280" y1="46" x2="318" y2="46" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Ok 2->3 -->
+      <line x1="465" y1="46" x2="598" y2="46" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- AŞAMA 2: Veri Modelleme -->
+      <!-- Kutu 4: Uzman Değerlendirmeleri -->
+      <rect x="135" y="170" width="145" height="52" rx="4" fill="#171f2b" stroke="#2a3f52" stroke-width="1"/>
+      <text x="207" y="193" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">uzman</text>
+      <text x="207" y="208" text-anchor="middle" fill="#7a92a8" font-size="11" font-family="monospace">değerlendirmeleri</text>
+
+      <!-- Kutu 5: Z-Sayıları (Güven) -->
+      <rect x="320" y="158" width="145" height="52" rx="4" fill="#171f2b" stroke="#a78bfa" stroke-width="1"/>
+      <text x="392" y="178" text-anchor="middle" fill="#a78bfa" font-size="11" font-family="monospace">Z-sayıları</text>
+      <text x="392" y="193" text-anchor="middle" fill="#a78bfa" font-size="11" font-family="monospace">(güven modelleme)</text>
+      <text x="392" y="204" text-anchor="middle" fill="#534AB7" font-size="9" font-family="monospace">B bileşeni → α = centroid(R̃)</text>
+
+      <!-- Kutu 6: DFS -->
+      <rect x="320" y="222" width="145" height="52" rx="4" fill="#171f2b" stroke="#2dd4bf" stroke-width="1"/>
+      <text x="392" y="242" text-anchor="middle" fill="#2dd4bf" font-size="11" font-family="monospace">DFS yapısı</text>
+      <text x="392" y="257" text-anchor="middle" fill="#2dd4bf" font-size="11" font-family="monospace">(O-iyimser, P-kötümser)</text>
+      <text x="392" y="268" text-anchor="middle" fill="#0F6E56" font-size="9" font-family="monospace">DWGM operatörü</text>
+
+      <!-- Kutu 7: CI Ağırlıklandırma -->
+      <rect x="510" y="222" width="145" height="52" rx="4" fill="#171f2b" stroke="#f59e0b" stroke-width="1"/>
+      <text x="582" y="242" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="monospace">tutarlılık düzeyine</text>
+      <text x="582" y="257" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="monospace">göre ağırlıklandırma</text>
+      <text x="582" y="268" text-anchor="middle" fill="#854F0B" font-size="9" font-family="monospace">CI indeksi · SI skoru</text>
+
+      <!-- Kutu 8: Z-DFS Entegrasyon -->
+      <rect x="690" y="190" width="115" height="52" rx="4" fill="#171f2b" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="747" y="213" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">Z-DFS</text>
+      <text x="747" y="228" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">entegrasyonu</text>
+
+      <!-- Oklar Aşama 2 -->
+      <!-- 4->5 -->
+      <line x1="280" y1="184" x2="318" y2="184" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- 4->6 -->
+      <line x1="280" y1="210" x2="318" y2="242" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- 5->8 -->
+      <line x1="465" y1="184" x2="688" y2="210" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- 6->7 -->
+      <line x1="465" y1="248" x2="508" y2="248" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- 7->8 -->
+      <line x1="655" y1="248" x2="688" y2="225" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Aşama 1 -> Aşama 2 (Risk Param -> Uzman) -->
+      <path d="M 672 72 L 672 100 L 207 100 L 207 168" fill="none" stroke="#3d5166" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+      <!-- AŞAMA 3: Çıkarım -->
+      <!-- Kutu 9: Normalize Z-DFS -->
+      <rect x="135" y="305" width="130" height="52" rx="4" fill="#171f2b" stroke="#2a3f52" stroke-width="1"/>
+      <text x="200" y="325" text-anchor="middle" fill="#7a92a8" font-size="10" font-family="monospace">normalize Z-DFS</text>
+      <text x="200" y="340" text-anchor="middle" fill="#7a92a8" font-size="10" font-family="monospace">skorları (FIS girdi)</text>
+
+      <!-- Kutu 10: FIS Kural Tabanı -->
+      <rect x="285" y="305" width="110" height="52" rx="4" fill="#171f2b" stroke="#ef4444" stroke-width="1"/>
+      <text x="340" y="325" text-anchor="middle" fill="#ef4444" font-size="11" font-family="monospace">FIS kural</text>
+      <text x="340" y="340" text-anchor="middle" fill="#ef4444" font-size="11" font-family="monospace">tabanı</text>
+
+      <!-- Kutu 11: Durulaştırma -->
+      <rect x="415" y="305" width="110" height="52" rx="4" fill="#171f2b" stroke="#f59e0b" stroke-width="1"/>
+      <text x="470" y="325" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="monospace">durulaştırma</text>
+      <text x="470" y="340" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="monospace">(Mamdani)</text>
+
+      <!-- Kutu 12: Niteliksel Risk -->
+      <rect x="545" y="305" width="115" height="52" rx="4" fill="#171f2b" stroke="#22c55e" stroke-width="1"/>
+      <text x="602" y="325" text-anchor="middle" fill="#22c55e" font-size="10" font-family="monospace">niteliksel risk</text>
+      <text x="602" y="340" text-anchor="middle" fill="#22c55e" font-size="10" font-family="monospace">sınıflandırması</text>
+
+      <!-- Kutu 13: Doğrulama -->
+      <rect x="680" y="305" width="115" height="52" rx="4" fill="#171f2b" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="737" y="325" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">model</text>
+      <text x="737" y="340" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="monospace">doğrulama</text>
+
+      <!-- Oklar Aşama 3 -->
+      <line x1="265" y1="331" x2="283" y2="331" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="395" y1="331" x2="413" y2="331" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="525" y1="331" x2="543" y2="331" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="660" y1="331" x2="678" y2="331" stroke="#3d5166" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Z-DFS -> Normalize Z-DFS -->
+      <path d="M 747 242 L 747 270 L 200 270 L 200 303" fill="none" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr2)"/>
+    </svg>
+  </div>
+</div>
 </div>
 
 <div class="layout">
@@ -376,6 +508,7 @@ tr:hover td { background: rgba(255,255,255,.01); }
       <button class="ntab active" onclick="switchTab('giris')">veri girişi</button>
       <button class="ntab" onclick="switchTab('sonuc')">sonuçlar</button>
       <button class="ntab" onclick="switchTab('adim')">adım adım</button>
+      <button class="ntab" onclick="switchTab('model')">model akışı</button>
     </div>
 
     <div id="sec-giris" class="section active">
@@ -426,6 +559,179 @@ tr:hover td { background: rgba(255,255,255,.01); }
         </div>
       </div>
     </div>
+
+    <div id="sec-model" class="section">
+      <div class="panel">
+        <div class="panel-hdr">
+          <span class="panel-title">model iş akışı</span>
+          <span class="panel-sub">Cebi et al. (2023) · Tüysüz & Kahraman (2024)</span>
+        </div>
+        <div class="panel-body" style="padding:20px">
+          <svg viewBox="0 0 820 420" width="100%" style="display:block;max-width:820px;margin:0 auto" font-family="'IBM Plex Mono',monospace">
+            <defs>
+              <marker id="ma" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0 0,8 3,0 6" fill="#3d5166"/>
+              </marker>
+              <marker id="mb" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0 0,8 3,0 6" fill="#3b82f6"/>
+              </marker>
+              <marker id="mc" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0 0,8 3,0 6" fill="#a78bfa"/>
+              </marker>
+            </defs>
+
+            <!-- Aşama etiketleri (sol şerit) -->
+            <rect x="0" y="10" width="108" height="110" rx="4" fill="#111720" stroke="#1e2d3d"/>
+            <text x="54" y="55" text-anchor="middle" fill="#3d5166" font-size="10">sistematik</text>
+            <text x="54" y="69" text-anchor="middle" fill="#3d5166" font-size="10">tanımlama</text>
+            <text x="54" y="83" text-anchor="middle" fill="#3d5166" font-size="10">aşaması</text>
+
+            <rect x="0" y="140" width="108" height="160" rx="4" fill="#111720" stroke="#1e2d3d"/>
+            <text x="54" y="203" text-anchor="middle" fill="#3d5166" font-size="10">veri</text>
+            <text x="54" y="217" text-anchor="middle" fill="#3d5166" font-size="10">modelleme</text>
+            <text x="54" y="231" text-anchor="middle" fill="#3d5166" font-size="10">aşaması</text>
+
+            <rect x="0" y="320" width="108" height="90" rx="4" fill="#111720" stroke="#1e2d3d"/>
+            <text x="54" y="358" text-anchor="middle" fill="#3d5166" font-size="10">çıkarım ve</text>
+            <text x="54" y="372" text-anchor="middle" fill="#3d5166" font-size="10">sınıflandırma</text>
+            <text x="54" y="386" text-anchor="middle" fill="#3d5166" font-size="10">aşaması</text>
+
+            <!-- Yatay ayırıcı çizgiler -->
+            <line x1="110" y1="130" x2="818" y2="130" stroke="#1e2d3d" stroke-width="1" stroke-dasharray="4,4"/>
+            <line x1="110" y1="310" x2="818" y2="310" stroke="#1e2d3d" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <!-- ── AŞAMA 1 ── -->
+            <!-- Kutu: Sistem fonksiyonları -->
+            <rect x="120" y="28" width="150" height="54" rx="4" fill="#171f2b" stroke="#2a3f52"/>
+            <text x="195" y="51" text-anchor="middle" fill="#7a92a8" font-size="11">sistem fonksiyonları</text>
+            <text x="195" y="66" text-anchor="middle" fill="#7a92a8" font-size="11">ve bağlamın tanımı</text>
+
+            <!-- Ok -->
+            <line x1="270" y1="55" x2="308" y2="55" stroke="#3d5166" stroke-width="1.5" marker-end="url(#ma)"/>
+
+            <!-- Kutu: FHA -->
+            <rect x="310" y="28" width="150" height="54" rx="4" fill="#171f2b" stroke="#2a3f52"/>
+            <text x="385" y="51" text-anchor="middle" fill="#7a92a8" font-size="11">fonksiyonel tehlike</text>
+            <text x="385" y="66" text-anchor="middle" fill="#7a92a8" font-size="11">analizi (FHA)</text>
+
+            <!-- Ok -->
+            <line x1="460" y1="55" x2="498" y2="55" stroke="#3d5166" stroke-width="1.5" marker-end="url(#ma)"/>
+
+            <!-- Kutu: Risk Parametreleri (vurgulu) -->
+            <rect x="500" y="28" width="170" height="54" rx="4" fill="#0d1f35" stroke="#3b82f6" stroke-width="1.5"/>
+            <text x="585" y="51" text-anchor="middle" fill="#60a5fa" font-size="11">risk parametrelerinin</text>
+            <text x="585" y="66" text-anchor="middle" fill="#60a5fa" font-size="11">belirlenmesi</text>
+
+            <!-- Aşama 1 -> Aşama 2 bağlantı oku -->
+            <path d="M 195 82 L 195 140" fill="none" stroke="#3d5166" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#ma)"/>
+            <path d="M 585 82 L 585 110 L 195 110 L 195 140" fill="none" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mb)"/>
+
+            <!-- ── AŞAMA 2 ── -->
+            <!-- Kutu: Uzman Değerlendirmeleri -->
+            <rect x="120" y="148" width="150" height="54" rx="4" fill="#171f2b" stroke="#2a3f52"/>
+            <text x="195" y="171" text-anchor="middle" fill="#7a92a8" font-size="11">uzman</text>
+            <text x="195" y="186" text-anchor="middle" fill="#7a92a8" font-size="11">değerlendirmeleri</text>
+
+            <!-- İki ok: uzman -> Z ve uzman -> DFS -->
+            <line x1="270" y1="163" x2="308" y2="163" stroke="#3d5166" stroke-width="1.5" marker-end="url(#ma)"/>
+            <line x1="270" y1="185" x2="308" y2="220" stroke="#3d5166" stroke-width="1.5" marker-end="url(#ma)"/>
+
+            <!-- Kutu: Z-Sayıları -->
+            <rect x="310" y="143" width="155" height="54" rx="4" fill="#1a1030" stroke="#a78bfa" stroke-width="1.5"/>
+            <text x="387" y="166" text-anchor="middle" fill="#c4b5fd" font-size="11">Z-sayıları</text>
+            <text x="387" y="181" text-anchor="middle" fill="#c4b5fd" font-size="11">(güven modelleme)</text>
+            <text x="387" y="192" text-anchor="middle" fill="#7c3aed" font-size="9">α = centroid(R̃)</text>
+
+            <!-- Kutu: DFS -->
+            <rect x="310" y="210" width="155" height="54" rx="4" fill="#0a1f1e" stroke="#2dd4bf" stroke-width="1.5"/>
+            <text x="387" y="233" text-anchor="middle" fill="#5eead4" font-size="11">DFS yapısı</text>
+            <text x="387" y="248" text-anchor="middle" fill="#5eead4" font-size="11">(O-iyimser, P-kötümser)</text>
+            <text x="387" y="259" text-anchor="middle" fill="#0f766e" font-size="9">DWGM operatörü</text>
+
+            <!-- Z + DFS -> Z-DFS entegrasyon oku -->
+            <line x1="465" y1="170" x2="618" y2="205" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mc)"/>
+            <line x1="465" y1="237" x2="618" y2="220" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#ma)"/>
+
+            <!-- Kutu: Tutarlılık Ağırlıklandırma -->
+            <rect x="500" y="175" width="155" height="54" rx="4" fill="#171f2b" stroke="#2a3f52"/>
+            <text x="577" y="198" text-anchor="middle" fill="#7a92a8" font-size="10">tutarlılık düzeylerine</text>
+            <text x="577" y="213" text-anchor="middle" fill="#7a92a8" font-size="10">göre ağırlıklandırma</text>
+            <text x="577" y="224" text-anchor="middle" fill="#3d5166" font-size="9">CI · SI hesabı</text>
+
+            <!-- Kutu: Z-DFS entegrasyon -->
+            <rect x="678" y="163" width="130" height="54" rx="4" fill="#0d1f35" stroke="#3b82f6" stroke-width="1.5"/>
+            <text x="743" y="182" text-anchor="middle" fill="#60a5fa" font-size="11">Z-DFS</text>
+            <text x="743" y="197" text-anchor="middle" fill="#60a5fa" font-size="11">entegrasyonu</text>
+            <text x="743" y="208" text-anchor="middle" fill="#1d4ed8" font-size="9">normalize skor</text>
+
+            <line x1="655" y1="202" x2="676" y2="202" stroke="#3d5166" stroke-width="1.5" marker-end="url(#ma)"/>
+
+            <!-- Aşama 2 -> Aşama 3 -->
+            <path d="M 743 217 L 743 280 L 155 280 L 155 318" fill="none" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mb)"/>
+
+            <!-- ── AŞAMA 3 ── -->
+            <!-- Kutu: FIS Girdi -->
+            <rect x="120" y="320" width="130" height="54" rx="4" fill="#171f2b" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="185" y="341" text-anchor="middle" fill="#fbbf24" font-size="10">normalize Z-DFS</text>
+            <text x="185" y="356" text-anchor="middle" fill="#fbbf24" font-size="10">FIS için girdi</text>
+
+            <line x1="250" y1="347" x2="278" y2="347" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#ma)"/>
+
+            <!-- Kutu: FIS Kural Tabanı -->
+            <rect x="280" y="320" width="130" height="54" rx="4" fill="#171f2b" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="345" y="341" text-anchor="middle" fill="#fbbf24" font-size="10">FIS kural tabanı</text>
+            <text x="345" y="356" text-anchor="middle" fill="#fbbf24" font-size="10">uygulanması</text>
+            <text x="345" y="367" text-anchor="middle" fill="#92400e" font-size="9">Mamdani</text>
+
+            <line x1="410" y1="347" x2="438" y2="347" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#ma)"/>
+
+            <!-- Kutu: Durulaştırma -->
+            <rect x="440" y="320" width="120" height="54" rx="4" fill="#171f2b" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="500" y="341" text-anchor="middle" fill="#fbbf24" font-size="10">durulaştırma</text>
+            <text x="500" y="356" text-anchor="middle" fill="#fbbf24" font-size="10">işlemi</text>
+            <text x="500" y="367" text-anchor="middle" fill="#92400e" font-size="9">centroid</text>
+
+            <line x1="560" y1="347" x2="578" y2="347" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#ma)"/>
+
+            <!-- Kutu: Risk Sınıflandırma -->
+            <rect x="580" y="320" width="110" height="54" rx="4" fill="#0a1f0f" stroke="#22c55e" stroke-width="1.5"/>
+            <text x="635" y="338" text-anchor="middle" fill="#4ade80" font-size="10">niteliksel risk</text>
+            <text x="635" y="353" text-anchor="middle" fill="#4ade80" font-size="10">sınıflandırması</text>
+            <text x="635" y="364" text-anchor="middle" fill="#166534" font-size="9">Low/Mod/High/Crit</text>
+
+            <line x1="690" y1="347" x2="708" y2="347" stroke="#22c55e" stroke-width="1.5" marker-end="url(#ma)"/>
+
+            <!-- Kutu: Model Doğrulama -->
+            <rect x="710" y="320" width="100" height="54" rx="4" fill="#0d1f35" stroke="#3b82f6" stroke-width="2"/>
+            <text x="760" y="341" text-anchor="middle" fill="#60a5fa" font-size="11">model</text>
+            <text x="760" y="356" text-anchor="middle" fill="#60a5fa" font-size="11">doğrulama</text>
+
+            <!-- Referanslar -->
+            <text x="120" y="408" fill="#3d5166" font-size="9">Kaynak: Cebi et al. (2023) · Tüysüz &amp; Kahraman (2024) · Kang et al. (2012)</text>
+          </svg>
+
+          <!-- Renk Açıklaması -->
+          <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text2)">
+              <span style="width:10px;height:10px;border-radius:2px;background:#3b82f6;display:inline-block"></span>Risk parametreleri / Z-DFS çıktısı
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text2)">
+              <span style="width:10px;height:10px;border-radius:2px;background:#a78bfa;display:inline-block"></span>Z-sayıları (güven)
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text2)">
+              <span style="width:10px;height:10px;border-radius:2px;background:#2dd4bf;display:inline-block"></span>DFS yapısı
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text2)">
+              <span style="width:10px;height:10px;border-radius:2px;background:#f59e0b;display:inline-block"></span>FIS aşaması
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--text2)">
+              <span style="width:10px;height:10px;border-radius:2px;background:#22c55e;display:inline-block"></span>Risk çıktısı
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -437,6 +743,16 @@ const DET={"Almost Certain":[.8,1,1],High:[.55,.7,.85],Moderate:[.3,.5,.7],Low:[
 const RULES={Negligible:{Frequent:"Moderate",Occasional:"Low",Remote:"Low",Improbable:"Negligible","Extremely Improbable":"Negligible"},Minor:{Frequent:"Moderate",Occasional:"Moderate",Remote:"Low",Improbable:"Low","Extremely Improbable":"Negligible"},Major:{Frequent:"High",Occasional:"High",Remote:"Moderate",Improbable:"Low","Extremely Improbable":"Low"},Hazardous:{Frequent:"Critical",Occasional:"High",Remote:"High",Improbable:"Moderate","Extremely Improbable":"Low"},Catastrophic:{Frequent:"Critical",Occasional:"Critical",Remote:"High",Improbable:"High","Extremely Improbable":"Moderate"}};
 const OUTT={Negligible:[0,0,.2],Low:[.1,.25,.4],Moderate:[.3,.5,.7],High:[.6,.75,.9],Critical:[.8,1,1]};
 const EXPERTS=["U1","U2","U3","U4","U5"];
+
+let wfOpen=false;
+function toggleWorkflow(){
+  wfOpen=!wfOpen;
+  const s=document.getElementById('workflow-section');
+  const b=document.getElementById('wf-btn');
+  s.style.maxHeight=wfOpen?'500px':'0';
+  s.style.padding=wfOpen?'0 24px':'0 24px 0';
+  b.textContent=wfOpen?'iş akışı ↑':'iş akışı ↓';
+}
 
 let DB={}, activeFunc=null, activeExp="U1", dirty=false;
 
@@ -732,7 +1048,7 @@ function renderSteps(){
 }
 
 function switchTab(id){
-  ['giris','sonuc','adim'].forEach((s,i)=>{
+  ['giris','sonuc','adim','model'].forEach((s,i)=>{
     document.getElementById('sec-'+s).className='section'+(s===id?' active':'');
     document.querySelectorAll('.ntab')[i].className='ntab'+(s===id?' active':'');
   });
