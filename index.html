@@ -866,44 +866,63 @@ function renderSteps(){
     <div class="step-row">
       <div class="step-icon" style="background:rgba(59,130,246,.1);color:#60a5fa">Z</div>
       <div class="step-content">
-        <h4>Z-Sayısı ağırlıklandırması</h4>
-        <p>${r.steps.map(s=>`${s.uid}: α=√B → w_exp=${s.ew}`).join('  |  ')}</p>
+        <h4>Adım 1 — Z-Sayısı dönüşümü <span style="font-size:10px;color:var(--text3)">[Kang et al., 2012]</span></h4>
+        <p style="margin-bottom:4px">${r.steps.map(s=>`${s.uid}: α=√${s.ws} → w=${s.ew}`).join('  ·  ')}</p>
+        <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#93c5fd;font-family:var(--mono)">
+          α = ∫ x·μ_R̃(x)dx / ∫ μ_R̃(x)dx &nbsp;→&nbsp; Z̃' : μ_Ã(x/√α) &nbsp;[Denklem 3.69–3.70]
+        </div>
       </div>
       <div class="step-val" style="color:#60a5fa">${r.n} uzman</div>
     </div>
     <div class="step-row">
       <div class="step-icon" style="background:rgba(167,139,250,.1);color:#c4b5fd">D</div>
       <div class="step-content">
-        <h4>DFS birleşimi (α ⊕ β)</h4>
-        <p>Şid: (${r.aS.map(v=>v.toFixed(3))})  ·  Ola: (${r.aP.map(v=>v.toFixed(3))})</p>
+        <h4>Adım 2 — DFS agregasyonu <span style="font-size:10px;color:var(--text3)">[Cebi et al., 2023 — Def. 3.5]</span></h4>
+        <p style="margin-bottom:4px">Şiddet agg: (${r.aS.map(v=>v.toFixed(3))})  ·  Olasılık agg: (${r.aP.map(v=>v.toFixed(3))})</p>
+        <div style="background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#c4b5fd;font-family:var(--mono)">
+          DWGM(α̃₁…α̃ₙ) = α̃₁^λ₁ ⊗ … ⊗ α̃ₙ^λₙ &nbsp;[Denklem 3.48]<br>
+          O: (∏aᵢ^λᵢ, 1−∏(1−bᵢ)^λᵢ) &nbsp;·&nbsp; P: (∏cᵢ / Σcᵢⁿ⁻¹λᵢ(1−cᵢ)+∏cᵢ, Σλᵢdᵢ / 1+Σ(λᵢdᵢ−dᵢ/n))
+        </div>
       </div>
-      <div class="step-val" style="color:#c4b5fd">TFN ✓</div>
+      <div class="step-val" style="color:#c4b5fd">DWGM ✓</div>
     </div>
     <div class="step-row">
-      <div class="step-icon" style="background:rgba(245,158,11,.1);color:#fcd34d">C</div>
+      <div class="step-icon" style="background:rgba(45,212,191,.1);color:#5eead4">I</div>
       <div class="step-content">
-        <h4>Defuzzification — ağırlık merkezi</h4>
-        <p>S=(a+b+c)/3 = ${r.sc.toFixed(4)}  ·  P = ${r.pc.toFixed(4)}</p>
+        <h4>Adım 3 — Tutarlılık & Skor İndeksi <span style="font-size:10px;color:var(--text3)">[Cebi et al., 2023 — Def. 3.6–3.7]</span></h4>
+        <p style="margin-bottom:4px">Şiddet crisp: ${r.sc.toFixed(4)} &nbsp;·&nbsp; Olasılık crisp: ${r.pc.toFixed(4)}</p>
+        <div style="background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#5eead4;font-family:var(--mono)">
+          CI(α̃) = 1 − √[(a−d)²+(b−c)²+(1−a−b)²+(1−c−d)²] / 2 &nbsp;[Denklem 3.50]<br>
+          SI(α̃) = (a+b−c+d)·CI(α̃) / (2k) &nbsp;&nbsp;k = 0.68 &nbsp;[Denklem 3.51]
+        </div>
       </div>
-      <div class="step-val" style="color:#fcd34d">${r.sc.toFixed(3)} · ${r.pc.toFixed(3)}</div>
+      <div class="step-val" style="color:#5eead4">SI → FIS</div>
     </div>
     <div class="step-row">
       <div class="step-icon" style="background:rgba(251,146,60,.1);color:#fdba74">F</div>
       <div class="step-content">
-        <h4>Mamdani FIS — kural aktivasyonu</h4>
-        <p>${topAct}</p>
-        <div class="pbar"><div class="pbar-fill" style="width:${(r.raw*100).toFixed(1)}%;background:#3b82f6"></div></div>
+        <h4>Adım 4 — Mamdani FIS <span style="font-size:10px;color:var(--text3)">[kural tabanı: 25 kural]</span></h4>
+        <p style="margin-bottom:4px">Aktif kurallar: ${topAct}</p>
+        <div style="background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#fdba74;font-family:var(--mono)">
+          Fuzzification → Kural aktivasyonu (min) → Agregasyon (max) → Centroid defuzz.<br>
+          risk* = Σ(x·μ_agg(x)) / Σμ_agg(x)
+        </div>
+        <div class="pbar" style="margin-top:8px"><div class="pbar-fill" style="width:${(r.raw*100).toFixed(1)}%;background:#3b82f6"></div></div>
       </div>
       <div class="step-val" style="color:#fdba74">${r.raw.toFixed(4)}</div>
     </div>
     <div class="step-row">
       <div class="step-icon" style="background:rgba(34,197,94,.1);color:#86efac">R</div>
       <div class="step-content">
-        <h4>Detectability düzeltmesi</h4>
-        <p>${r.raw.toFixed(4)} × ${af} = ${r.adj.toFixed(4)}</p>
-        <div class="pbar"><div class="pbar-fill" style="width:${(r.adj*100).toFixed(1)}%;background:${barColor}"></div></div>
+        <h4>Adım 5 — Detectability düzeltmesi & Risk sınıfı</h4>
+        <p style="margin-bottom:4px">D(crisp)=${r.dc.toFixed(3)} &nbsp;→&nbsp; ${r.raw.toFixed(4)} × ${af} = ${r.adj.toFixed(4)}</p>
+        <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:4px;padding:6px 10px;margin-top:6px;font-size:11px;color:#86efac;font-family:var(--mono)">
+          risk_adj = risk* × (1 − det_crisp × 0.30)<br>
+          Sınıf: &lt;0.20 Negligible · &lt;0.40 Low · &lt;0.60 Moderate · &lt;0.80 High · ≥0.80 Critical
+        </div>
+        <div class="pbar" style="margin-top:8px"><div class="pbar-fill" style="width:${(r.adj*100).toFixed(1)}%;background:${barColor}"></div></div>
       </div>
-      <div class="step-val" style="color:${barColor}">${r.adj.toFixed(4)}<br><span style="font-size:9px">${rLbl(r.adj)}</span></div>
+      <div class="step-val" style="color:${barColor}">${r.adj.toFixed(4)}<br><span style="font-size:11px;font-weight:500">${rLbl(r.adj)}</span></div>
     </div>
   </div>`;
 }
